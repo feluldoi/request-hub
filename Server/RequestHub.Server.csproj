@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Blazorise.Bootstrap" Version="1.2.5" />
+    <PackageReference Include="Blazorise.DataGrid" Version="1.2.4" />
+    <PackageReference Include="MailKit" Version="4.2.0" />
+    <PackageReference Include="microsoft.aspnetcore.authentication.jwtbearer" Version="6.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.1" />
+    <PackageReference Include="microsoft.entityframeworkcore" Version="6.0.1" />
+    <PackageReference Include="microsoft.entityframeworkcore.design" Version="6.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="microsoft.entityframeworkcore.sqlserver" Version="6.0.1" />
+    <PackageReference Include="microsoft.extensions.configuration" Version="7.0.0" />
+    <PackageReference Include="microsoft.extensions.configuration.json" Version="7.0.0" />
+    <PackageReference Include="swashbuckle.aspnetcore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Client\RequestHub.Client.csproj" />
+    <ProjectReference Include="..\Shared\RequestHub.Shared.csproj" />
+  </ItemGroup>
+
+
+</Project>
