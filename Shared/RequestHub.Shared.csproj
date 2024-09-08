@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="blazorise.bootstrap" Version="1.2.5" />
-    <PackageReference Include="mailkitlite" Version="4.2.0" />
+    <PackageReference Include="mailkit" Version="4.2.0" />
     <PackageReference Include="microsoft.extensions.configuration" Version="7.0.0" />
     <PackageReference Include="microsoft.extensions.configuration.json" Version="7.0.0" />
   </ItemGroup>

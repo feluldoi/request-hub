@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RequestHub.Server.Data;
+using RequestHub.Server.ServicesServer.AuthServiceServer;
+using RequestHub.Server.ServicesServer.EmailServiceServer;
+using RequestHub.Server.ServicesServer.FileUploadServiceServer;
+using RequestHub.Server.ServicesServer.TicketServiceServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +18,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddBlazorise();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+builder.Services.AddScoped<IFileUploadServiceServer, FileUploadServiceServer>();
 
 
 builder.Services.AddDbContext<DataContext>(options =>
@@ -29,6 +35,8 @@ builder.Services
     })
     .AddBootstrapProviders()
     .AddFontAwesomeIcons();
+
+builder.Services.AddScoped<IAuthServiceServer, AuthServiceServer>();
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -46,6 +54,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 
     });
+
+builder.Services.AddScoped<IEmailServiceServer, EmailServiceServer>();
+builder.Services.AddScoped<ITicketServiceServer, TicketServiceServer>();
+
 
 
 var app = builder.Build();
