@@ -2,7 +2,7 @@
 using MimeKit.Text;
 using MimeKit;
 using RequestHub.Shared;
-using System.Net.Mail;
+using MailKit.Net.Smtp;
 
 namespace RequestHub.Server.ServicesServer.EmailServiceServer
 {
