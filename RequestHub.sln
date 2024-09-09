@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35219.272
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestHub.Server", "Server\RequestHub.Server.csproj", "{A7D0CDC1-2A00-4881-94D5-2CCFF6FAF7B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequestHub.Server", "Server\RequestHub.Server.csproj", "{A7D0CDC1-2A00-4881-94D5-2CCFF6FAF7B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestHub.Client", "Client\RequestHub.Client.csproj", "{40AB7C68-745D-4C69-8FEA-A6E52BA8BECD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequestHub.Client", "Client\RequestHub.Client.csproj", "{40AB7C68-745D-4C69-8FEA-A6E52BA8BECD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestHub.Shared", "Shared\RequestHub.Shared.csproj", "{9B4BD201-D647-4326-B9A0-23D3F53D282B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RequestHub.Shared", "Shared\RequestHub.Shared.csproj", "{9B4BD201-D647-4326-B9A0-23D3F53D282B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

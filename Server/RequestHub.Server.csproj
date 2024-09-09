@@ -28,9 +28,5 @@
     <ProjectReference Include="..\Shared\RequestHub.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
 
 </Project>
