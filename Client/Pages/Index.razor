@@ -1,9 +1,49 @@
 ﻿@page "/"
+@inject NavigationManager navigationManager
 
-<PageTitle>Index</PageTitle>
+<html>
+<head>
+    <title>Ticketing System</title>
+</head>
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
+<body>
+    <header>
+        <div>
+            <h1>Request Hub</h1>
+        </div>
+    </header>
+    <main>
+        <section class="content">
+            <img class="ticket-image" src="../PaperAirPlane.png" alt="Ticket Icon">
+            <h2>Welcome to Topre's Ticketing System</h2>
+            <p>Submit and track your requests with ease.</p>
+            <button @onclick="LoginBtn">Get Started</button>
+            <button @onclick="openFileUpload">Open File Upload Page</button>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+        </section>
+    </main>
+</body>
+</html>
+
+@code {
+    //Login Btn
+    void LoginBtn()
+    {
+        navigationManager.NavigateTo("/login");
+    }
+
+    void openFileUpload()
+    {
+        navigationManager.NavigateTo("/file-upload");
+
+    }
+
+
+}
+
+
+
+
+
+

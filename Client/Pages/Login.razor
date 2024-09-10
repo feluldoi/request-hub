@@ -1,0 +1,85 @@
+﻿@page "/login"
+@inject IAuthServiceClient AuthService
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
+
+<html>
+<head>
+	<PageTitle>Login</PageTitle>
+</head>
+<body>
+	<header>
+		<h1>Login</h1>
+	</header>
+	<main>
+		<EditForm Model="user" OnValidSubmit="HandleLogin">
+			<DataAnnotationsValidator />
+			<section>
+				<div class="email">
+					<label for="email">Email </label>
+					<InputText id="email" @bind-Value="user.Email" class="form-control"></InputText>
+					<ValidationMessage For="@(() => user.Email)" />
+				</div>
+				<div class="pass">
+					<label for="password">Password</label>
+					<InputText id="password" @bind-Value="user.Password" class="form-control" type="password"></InputText>
+					<ValidationMessage For="@(() => user.Password)" />
+				</div>
+				<button type="submit" class="btn btn-primary">Login</button>
+				<a style="padding-left: 15px" href="register">Register</a>
+				<a style="padding-left: 15px" href="forgot-password">Forgot Password</a>
+			</section>
+			<!--<ValidationSummary/>-->
+		</EditForm>
+	</main>
+	<footer>
+		<div class="text-danger">
+			<span>@errorMessage</span>
+		</div>
+	</footer>
+</body>
+</html>
+
+
+
+
+
+
+@code {
+	private UserLogin user = new UserLogin();//instance of a class and assigns it to user variable
+
+	private string errorMessage = string.Empty;
+
+	private string returnUrl = string.Empty;
+
+	protected override void OnInitialized()
+	{
+		var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+		if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var url))
+		{
+			returnUrl = url;
+		}
+	}
+
+	private async Task HandleLogin()
+	{
+		var result = await AuthService.Login(user);
+		if (result.Success)
+		{
+			errorMessage = string.Empty;
+
+			await LocalStorage.SetItemAsync("authToken", result.Data);
+			await AuthenticationStateProvider.GetAuthenticationStateAsync();
+			NavigationManager.NavigateTo("/tickets");
+
+		}
+		else
+		{
+			errorMessage = result.Message;
+		}
+	}
+
+}
