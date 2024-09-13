@@ -1,0 +1,91 @@
+﻿@page "/verify-reset-pass-tok/{token}"
+@using Microsoft.AspNetCore.Components
+@inject IAuthServiceClient AuthService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Reset Password</PageTitle>
+<h3>Email Verification For Reset Password</h3>
+
+
+<p style="color:blue">@verificationMessage</p>
+<h4>New Password</h4>
+
+<EditForm Model="resetPass" OnValidSubmit="HandleResetPass">
+	<div class="mb-3">
+		<label for="password">Password</label>
+		<InputText id="password" @bind-Value="resetPass.Password" class="form-control"></InputText>
+		<ValidationMessage For="@(() => resetPass.Password)" />
+	</div>
+	<div class="mb-3">
+		<label for="confirmPassword">Confirm Password</label>
+		<InputText id="confirmPassword" @bind-Value="resetPass.ConfirmPassword" class="form-control"></InputText>
+		<ValidationMessage For="@(() => resetPass.ConfirmPassword)" />
+	</div>
+	<button type="submit" class="btn btn-primary">Apply</button>
+	<div class="@resetMessageCss">
+		<span>@resetMessage</span>
+	</div>
+	<!--<ValidationSummary/>-->
+</EditForm>
+
+
+
+
+@code {
+
+
+	private string verificationMessage = string.Empty;
+
+	ResetPasswordRequest resetPass = new ResetPasswordRequest();
+	private string resetMessageCss = string.Empty;
+	private string resetMessage = string.Empty;
+
+
+	[Parameter]
+	public string Token { get; set; }
+
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		var uri = new Uri(NavigationManager.Uri);
+
+		Token = uri.Segments.LastOrDefault() ?? string.Empty;
+
+		var response = await AuthService.VerifyEmailResetPassTok(Token);
+
+		if (response.Success)
+		{
+			verificationMessage = $"Verification successful. Enter your new password {response.Message}";
+		}
+		else
+		{
+			verificationMessage = $"Email verification failed (VerifyEmailResetPassTok): {response.Message}";
+		}
+
+	}
+
+	private async Task HandleResetPass()
+	{
+		//set the token property from the URI before calling ResetPassword
+		resetPass.Token = Token;
+
+		var response = await AuthService.ResetPassword(resetPass);
+		if (response.Success)
+		{
+			resetMessageCss = "text-success";
+			resetMessage = "Password successfully changed! Please go to login page";
+
+		}
+		else
+		{
+			resetMessageCss = "text-danger";
+			resetMessage = $"Error Encountered while changing password: {response.Message}";	
+		}
+
+	}
+
+
+}
+
+

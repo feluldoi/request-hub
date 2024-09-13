@@ -1,0 +1,48 @@
+﻿@page "/verify-email/{token}"
+@using Microsoft.AspNetCore.Components
+@inject IAuthServiceClient AuthService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Verify Email</PageTitle>
+<h3>Email Verification</h3>
+
+<div class="@verificationMessageCSS">
+	<span>@verificationMessage</span>
+</div>
+
+@code {
+
+	private string verificationMessageCSS = string.Empty;
+	private string verificationMessage = string.Empty;
+	[Parameter]
+	public string Token { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+
+
+		var uri = new Uri(NavigationManager.Uri);
+
+
+		Token = uri.Segments.LastOrDefault() ?? string.Empty;
+
+		var response = await AuthService.VerifyEmail(Token);
+
+
+		if (response.Success)
+		{
+			verificationMessageCSS = "text-success";
+			verificationMessage = "Email verification successful. You can now log in.";
+		}
+		else
+		{
+			verificationMessageCSS = "text-danger";
+			verificationMessage = $"Email verification failed: {response.Message}";
+		}
+
+
+	}
+
+
+}
+

@@ -10,6 +10,7 @@ using RequestHub.Server.ServicesServer.AuthServiceServer;
 using RequestHub.Server.ServicesServer.EmailServiceServer;
 using RequestHub.Server.ServicesServer.FileUploadServiceServer;
 using RequestHub.Server.ServicesServer.TicketServiceServer;
+using System.Data.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,9 +22,13 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<IFileUploadServiceServer, FileUploadServiceServer>();
 
-
+//setup config to pull from environmental vars 
 builder.Services.AddDbContext<DataContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer((DbConnection)builder.Configuration.AddEnvironmentVariables()));
+
+//use connection string in the app as needed
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
