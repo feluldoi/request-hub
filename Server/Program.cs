@@ -48,12 +48,19 @@ builder.Services.AddScoped<IAuthServiceServer, AuthServiceServer>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        var jwtKey = builder.Configuration["AppSettings:Token"];
+        if (string.IsNullOrEmpty(jwtKey))
+        {
+            throw new InvalidOperationException("JWT Token is not set.");
+        }
+
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey =
                 new SymmetricSecurityKey(Encoding.UTF8
-                 .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
+                 .GetBytes(jwtKey)),
             ValidateIssuer = false,
             ValidateAudience = false
         };
