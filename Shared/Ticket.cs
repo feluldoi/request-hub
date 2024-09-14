@@ -24,8 +24,8 @@ namespace RequestHub.Shared
         public int? UploadFileId { get; set; }
 
         //Updated property getters below
-        public string RequestorName => User?.RequestorName ?? "Error 'get'ting RequestorName";
-        public string DepartmentName => Department?.DepartmentName ?? "Error 'get'ting DepartmentName";
-        public string TACSite => SiteLocation?.TACSite ?? "Error 'get'ting TACSite";
+        public string RequestorName => User?.RequestorName ?? "Error GETting RequestorName";
+        public string DepartmentName => Department?.DepartmentName ?? "Error GETting DepartmentName";
+        public string Name => SiteLocation?.Name ?? "Error GETting Name";
     }
 }

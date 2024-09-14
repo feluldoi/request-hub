@@ -11,6 +11,7 @@ using RequestHub.Server.ServicesServer.EmailServiceServer;
 using RequestHub.Server.ServicesServer.FileUploadServiceServer;
 using RequestHub.Server.ServicesServer.TicketServiceServer;
 using System.Data.Common;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,7 +52,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey =
-                new SymmetricSecurityKey(System.Text.Encoding.UTF8
+                new SymmetricSecurityKey(Encoding.UTF8
                  .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
             ValidateIssuer = false,
             ValidateAudience = false

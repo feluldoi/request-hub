@@ -27,14 +27,14 @@ namespace RequestHub.Server.Data
                 new Ticket
                 {
                     Id = 1,
-                    Description = "#10",
+                    Description = "Enter description here",
                     IsValid = true,
                     Timestamp = DateTime.Now,
                     DepartmentId = 1,
-                    EquipmentName = "D11",
+                    EquipmentName = "enter equipment name here",
                     UserId = 1,
                     SiteLocationId = 1,
-                    Comment = "'comment here...'"
+                    Comment = "enter comment here..."
                     //UploadFileId = 1
 
 
@@ -47,12 +47,12 @@ namespace RequestHub.Server.Data
                 new Department
                 {
                     Id = 1,
-                    DepartmentName = "Controls Engineering"
+                    DepartmentName = "Software Engineering"
                 },
                 new Department
                 {
                     Id = 2,
-                    DepartmentName = "IT"
+                    DepartmentName = "Cloud Architect"
                 }
             );
 
@@ -62,22 +62,22 @@ namespace RequestHub.Server.Data
                 new SiteLocation
                 {
                     Id = 1,
-                    TACSite = "TAC-OH"
+                    Name = "Germany"
                 },
                 new SiteLocation
                 {
                     Id = 2,
-                    TACSite = "TAC-TN"
+					Name = "United States"
                 },
                 new SiteLocation
                 {
                     Id = 3,
-                    TACSite = "TAC-AL"
+					Name = "Switzerland"
                 },
                 new SiteLocation
                 {
                     Id = 4,
-                    TACSite = "TAC-MS"
+					Name = "Romania"
                 }
 
 
@@ -110,12 +110,12 @@ namespace RequestHub.Server.Data
                 new User
                 {
                     Id = 1,
-                    Email = "asilaghi@topreamerica.com",
+                    Email = "testuser@user.com",
                     PasswordHash = passwordHash1,
                     PasswordSalt = passwordSalt1,
                     DateCreated = DateTime.Now,
                     Role = "Admin",
-                    RequestorName = "Marsh"
+                    RequestorName = "Test User"
                 }
             );
 

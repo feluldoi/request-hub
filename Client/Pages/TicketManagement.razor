@@ -49,7 +49,7 @@ else
         <InputSelect @bind-Value="ticket.SiteLocationId" class="form-select">
             @foreach (var sitelocation in siteLocations)
             {
-                <option value="@sitelocation.Id">@sitelocation.TACSite</option>
+                <option value="@sitelocation.Id">@sitelocation.Name</option>
             }
         </InputSelect>
     </Div>
