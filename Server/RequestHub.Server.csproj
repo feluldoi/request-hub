@@ -20,6 +20,7 @@
     </PackageReference>
     <PackageReference Include="microsoft.entityframeworkcore.sqlserver" Version="6.0.1" />
     <PackageReference Include="microsoft.extensions.configuration" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="7.3.0" />
     <PackageReference Include="microsoft.extensions.configuration.json" Version="7.0.0" />
     <PackageReference Include="swashbuckle.aspnetcore" Version="6.5.0" />
   </ItemGroup>

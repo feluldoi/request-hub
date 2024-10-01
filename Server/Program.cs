@@ -3,7 +3,9 @@ using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using RequestHub.Server.Data;
 using RequestHub.Server.ServicesServer.AuthServiceServer;
@@ -23,12 +25,59 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<IFileUploadServiceServer, FileUploadServiceServer>();
 
-//setup config to pull from environmental vars 
-builder.Services.AddDbContext<DataContext>(options =>
-    options.UseSqlServer((DbConnection)builder.Configuration.AddEnvironmentVariables()));
 
-//use connection string in the app as needed
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//Local Development - user secrets
+//var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
+
+//Local Development - user secrets
+//builder.Services.AddDbContext<DataContext>(options =>
+//{
+//    if (connectionString != null)
+//    {
+//        options.UseSqlServer(connectionString);
+//    }
+//    else
+//    {
+//        throw new InvalidOperationException("connection string is null or empty.");
+//    }
+
+//});
+
+
+
+// Then, retrieve the connection string
+//var connectionString = Environment.GetEnvironmentVariable("AzureConnectionString");
+var connectionString = builder.Configuration["AzureConnectionString"];
+
+builder.Services.AddDbContext<DataContext>(options =>
+{
+    if (connectionString != null)
+    {
+        options.UseSqlServer(connectionString);
+    }
+    else
+    {
+        throw new InvalidOperationException("connection string is null or empty.");
+    }
+
+});
+
+
+
+
+////connection string in user secrets and Azure
+//builder.Services.AddDbContext<DataContext>(options =>
+//{
+//    if (connectionString != null)
+//    {
+//        options.UseSqlServer(connectionString);
+//    }
+//    else
+//    {
+//        throw new InvalidOperationException("connection string is null or empty.");
+//    }
+    
+//});
 
 
 builder.Services.AddEndpointsApiExplorer();
@@ -48,7 +97,7 @@ builder.Services.AddScoped<IAuthServiceServer, AuthServiceServer>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        var jwtKey = builder.Configuration["AppSettings:Token"];
+        var jwtKey = builder.Configuration["JWT"];
         if (string.IsNullOrEmpty(jwtKey))
         {
             throw new InvalidOperationException("JWT Token is not set.");
