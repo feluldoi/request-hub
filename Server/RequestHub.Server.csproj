@@ -22,7 +22,7 @@
     <PackageReference Include="microsoft.extensions.configuration" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="7.3.0" />
     <PackageReference Include="microsoft.extensions.configuration.json" Version="7.0.0" />
-    <PackageReference Include="swashbuckle.aspnetcore" Version="6.5.0" />
+    <PackageReference Include="swashbuckle.aspnetcore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>

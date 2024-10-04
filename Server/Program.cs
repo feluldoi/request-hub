@@ -24,64 +24,14 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<IFileUploadServiceServer, FileUploadServiceServer>();
+builder.Services.AddScoped<IAuthServiceServer, AuthServiceServer>();
 
-
-//Local Development - user secrets
-//var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
-
-//Local Development - user secrets
-//builder.Services.AddDbContext<DataContext>(options =>
-//{
-//    if (connectionString != null)
-//    {
-//        options.UseSqlServer(connectionString);
-//    }
-//    else
-//    {
-//        throw new InvalidOperationException("connection string is null or empty.");
-//    }
-
-//});
-
-
-
-// Then, retrieve the connection string
-//var connectionString = Environment.GetEnvironmentVariable("AzureConnectionString");
-var connectionString = builder.Configuration["AzureConnectionString"];
-
-builder.Services.AddDbContext<DataContext>(options =>
-{
-    if (connectionString != null)
-    {
-        options.UseSqlServer(connectionString);
-    }
-    else
-    {
-        throw new InvalidOperationException("connection string is null or empty.");
-    }
-
-});
-
-
-
-
-////connection string in user secrets and Azure
-//builder.Services.AddDbContext<DataContext>(options =>
-//{
-//    if (connectionString != null)
-//    {
-//        options.UseSqlServer(connectionString);
-//    }
-//    else
-//    {
-//        throw new InvalidOperationException("connection string is null or empty.");
-//    }
-    
-//});
-
+builder.Services.AddScoped<IEmailServiceServer, EmailServiceServer>();
+builder.Services.AddScoped<ITicketServiceServer, TicketServiceServer>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 builder.Services
     .AddBlazorise(options =>
@@ -91,34 +41,111 @@ builder.Services
     .AddBootstrapProviders()
     .AddFontAwesomeIcons();
 
-builder.Services.AddScoped<IAuthServiceServer, AuthServiceServer>();
 
 
+
+
+//Determine the environment
+var isDev = builder.Environment.IsDevelopment();
+var isProd = builder.Environment.IsProduction();
+
+//Determine connection string
+var prodConnectionStr = builder.Configuration["AzureConnectionString"];
+var devConnectionStr = builder.Configuration.GetConnectionString("DefaultConnection");
+
+
+
+//Handle ConnectionString
+
+builder.Services.AddDbContext<DataContext>(options =>
+{
+    if (isDev)
+    {
+        if (string.IsNullOrEmpty(devConnectionStr))
+        {
+            throw new InvalidOperationException("Developer Connection String Not Set");
+
+        }
+        else
+        {
+            options.UseSqlServer(devConnectionStr);
+        }
+    }
+    else if (isProd)
+    {
+        if (string.IsNullOrEmpty(prodConnectionStr))
+        {
+            throw new InvalidOperationException("Production Connection String Not Set");
+
+        }
+        else
+        {
+            options.UseSqlServer(prodConnectionStr);
+        }
+    }
+
+});
+
+
+
+
+
+//Determine the JWT
+var prodJWT = builder.Configuration["JWT"];
+var devJWT = builder.Configuration["AppSettings:Token"];
+
+//Handle JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        var jwtKey = builder.Configuration["JWT"];
-        if (string.IsNullOrEmpty(jwtKey))
+        //if evironment is Dev
+        if (isDev)
         {
-            throw new InvalidOperationException("JWT Token is not set.");
+            if (string.IsNullOrEmpty(devJWT))
+            {
+                throw new InvalidOperationException("Dev JWT Token is not set.");
+            }
+            else
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey =
+                    new SymmetricSecurityKey(Encoding.UTF8
+                        .GetBytes(devJWT)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            }
         }
-
-
-        options.TokenValidationParameters = new TokenValidationParameters
+        //if environment is Prod
+        else if (isProd)
         {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8
-                 .GetBytes(jwtKey)),
-            ValidateIssuer = false,
-            ValidateAudience = false
-        };
-
-
+            if (string.IsNullOrEmpty(prodJWT))
+            {
+                throw new InvalidOperationException("Prod JWT Token is not set.");
+            }
+            else
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey =
+                    new SymmetricSecurityKey(Encoding.UTF8
+                        .GetBytes(prodJWT)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            }
+        }
+        else
+        {
+            throw new InvalidOperationException("Neither Prod nor Dev JWT set");
+        }
     });
 
-builder.Services.AddScoped<IEmailServiceServer, EmailServiceServer>();
-builder.Services.AddScoped<ITicketServiceServer, TicketServiceServer>();
+
+
 
 
 
@@ -128,6 +155,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 else
 {
@@ -136,7 +165,15 @@ else
     app.UseHsts();
 }
 
-app.UseSwagger();
+if (builder.Environment.IsDevelopment())
+{
+    app.UseSwaggerUI(options => // UseSwaggerUI is called only in Development.
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        options.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
+    });
+}
+
 
 app.UseHttpsRedirection();
 
