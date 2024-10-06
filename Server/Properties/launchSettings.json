@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "RequestHub.Server": {
+    "RequestHub.Server": { //local Dev env
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
@@ -10,21 +10,12 @@
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
       "applicationUrl": "https://localhost:7252;http://localhost:5200"
     },
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
-      "environmentVariables": {
+    "AzureProduction": { //local Prod env
+      "commandName": "Project",
+      "laucnBroswer": true,
+      "environmentalVariabels": {
         "ASPNETCORE_ENVIRONMENT": "Production"
-      },
-      "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}"
-    }
-  },
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:29133",
-      "sslPort": 44323
+      }
     }
   }
 }

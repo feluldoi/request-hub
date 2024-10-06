@@ -49,6 +49,18 @@ builder.Services
 var isDev = builder.Environment.IsDevelopment();
 var isProd = builder.Environment.IsProduction();
 
+//Display environemnt
+if (isDev)
+{
+    Console.WriteLine("Development Envionrment Running");
+
+}
+else if (isProd)
+{
+    Console.WriteLine("Production Envionrment Running");
+
+};
+
 //Determine connection string
 var prodConnectionStr = builder.Configuration["AzureConnectionString"];
 var devConnectionStr = builder.Configuration.GetConnectionString("DefaultConnection");
