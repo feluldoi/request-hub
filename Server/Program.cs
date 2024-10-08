@@ -95,7 +95,7 @@ builder.Services.AddDbContext<DataContext>(options =>
             options.UseSqlServer(prodConnectionStr);
         }
     }
-    //
+    
 
 });
 
