@@ -96,6 +96,8 @@ builder.Services.AddDbContext<DataContext>(options =>
         }
     }
 
+    //added this change for ci/cd testing
+
 });
 
 
@@ -105,6 +107,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 //Determine the JWT
 var prodJWT = builder.Configuration["JWT"];
 var devJWT = builder.Configuration["AppSettings:Token"];
+
 
 //Handle JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -155,7 +158,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             throw new InvalidOperationException("Neither Prod nor Dev JWT set");
         }
     });
-
 
 
 

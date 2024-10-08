@@ -12,7 +12,7 @@
     },
     "AzureProduction": { //local Prod env
       "commandName": "Project",
-      "laucnBroswer": true,
+      "launchBrowser": true,
       "environmentalVariabels": {
         "ASPNETCORE_ENVIRONMENT": "Production"
       }
