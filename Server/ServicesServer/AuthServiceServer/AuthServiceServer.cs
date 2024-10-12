@@ -28,33 +28,44 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
 
         public async Task<ServiceResponse<string>> Login(string email, string password)//JSON Web Tokens
         {
-            var response = new ServiceResponse<string>();
-            var user = await _context.Users
-                .FirstOrDefaultAsync(x => x.Email.ToLower().Equals(email.ToLower()));
-            if (user == null)
+            try
             {
-                response.Success = false;
-                response.Message = "user not found.";
-            }
-            else if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
-            {
-                response.Success = false;
-                response.Message = "wrong password.";
-            }
-            //added PasswordReset
-            else if (user.VerifiedAt == null)
-            {
-                response.Success = false;
-                response.Message = "Not Verified!";
-            }
-            else
-            {
-                response.Data = CreateToken(user);
-                response.Success = true;
-                response.Message = $"Welcome back, {user.Email}";
-            };
+                var response = new ServiceResponse<string>();
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(x => x.Email.ToLower().Equals(email.ToLower()));
+                if (user == null)
+                {
+                    response.Success = false;
+                    response.Message = "user not found.";
+                }
+                else if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+                {
+                    response.Success = false;
+                    response.Message = "wrong password.";
+                }
+                //added PasswordReset
+                else if (user.VerifiedAt == null)
+                {
+                    response.Success = false;
+                    response.Message = "Not Verified!";
+                }
+                else
+                {
+                    response.Data = CreateToken(user);
+                    response.Success = true;
+                    response.Message = $"Welcome back, {user.Email}";
+                };
 
-            return response;
+                return response;
+            }
+            catch (Exception)
+            {
+
+                throw new Exception("Error in Login method");
+            }
+
+
+
         }
 
 
