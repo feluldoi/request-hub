@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "RequestHub.Server": { //local Dev env
+    "RequestHub.Server": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
@@ -10,12 +10,12 @@
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
       "applicationUrl": "https://localhost:7252;http://localhost:5200"
     },
-    "AzureProduction": { //local Prod env
+    "AzureProduction": {
       "commandName": "Project",
       "launchBrowser": true,
-      "environmentalVariabels": {
-        "ASPNETCORE_ENVIRONMENT": "Production"
-      }
+      //"launchUrl": "https://localhost:5001/",
+      "applicationUrl": "https://localhost:5001;http://localhost:5000",
+      "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}"
     }
   }
 }

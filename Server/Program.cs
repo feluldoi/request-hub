@@ -2,20 +2,21 @@ using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using RequestHub.Server.Data;
 using RequestHub.Server.ServicesServer.AuthServiceServer;
 using RequestHub.Server.ServicesServer.EmailServiceServer;
 using RequestHub.Server.ServicesServer.FileUploadServiceServer;
 using RequestHub.Server.ServicesServer.TicketServiceServer;
-using System.Data.Common;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//laod config from appsettings.json, envionmental variables, and user secrets
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                      .AddEnvironmentVariables()
+                      .AddUserSecrets<Program>(); // Only applies to development
 
 // Add services to the container.
 
@@ -62,8 +63,8 @@ else if (isProd)
 };
 
 //Determine connection string
-var prodConnectionStr = builder.Configuration["AzureConnectionString"];
-var devConnectionStr = builder.Configuration.GetConnectionString("DefaultConnection");
+var prodConnectionStr = Environment.GetEnvironmentVariable("AZURE_CONNECTIONSTRING");
+var devConnectionStr = builder.Configuration["ConnectionString:DefaultConnection"];
 
 
 
@@ -80,8 +81,16 @@ builder.Services.AddDbContext<DataContext>(options =>
         }
         else
         {
-            options.UseSqlServer(devConnectionStr);
+            options.UseSqlServer(devConnectionStr, sqlServerOptionsAction: sqlOptions =>
+            {
+                //added for azure
+                sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+            });
         }
+
     }
     else if (isProd)
     {
@@ -92,7 +101,14 @@ builder.Services.AddDbContext<DataContext>(options =>
         }
         else
         {
-            options.UseSqlServer(prodConnectionStr);
+            options.UseSqlServer(prodConnectionStr, sqlServerOptionsAction: sqlOptions =>
+            {
+                //added for azure
+                sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+            });
         }
     }
     
@@ -101,11 +117,9 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 
 
-
-
 //Determine the JWT
-var prodJWT = builder.Configuration["JWT"];
-var devJWT = builder.Configuration["AppSettings:Token"];
+var prodJWT = builder.Configuration["JWT:Key"];
+var devJWT = builder.Configuration["JWT:Key"];
 
 
 //Handle JWT
@@ -163,29 +177,34 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 
 var app = builder.Build();
+app.UseSwagger();
+app.UseSwaggerUI();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
-    app.UseSwagger();
-    app.UseSwaggerUI();
+
+
 }
 else
 {
-    app.UseExceptionHandler("/Error");
+    app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-if (builder.Environment.IsDevelopment())
-{
-    app.UseSwaggerUI(options => // UseSwaggerUI is called only in Development.
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-        options.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
-    });
-}
+//use swagger only for development
+//if (builder.Environment.IsDevelopment())
+//{
+//    app.UseSwaggerUI(options => // UseSwaggerUI is called only in Development.
+//    {
+//        options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+//        options.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
+//    });
+//}
 
 
 app.UseHttpsRedirection();
@@ -197,6 +216,12 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+
+//app.MapControllerRoute(
+//    name:"default",
+//    pattern: "{controller=Home}/{action=Index}/{id?}");
+
 
 
 app.MapRazorPages();
