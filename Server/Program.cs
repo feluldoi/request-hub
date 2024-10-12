@@ -118,7 +118,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 
 //Determine the JWT
-var prodJWT = Environment.GetEnvironmentVariable("JWT_KEY");
+var prodJWT = Environment.GetEnvironmentVariable("JWT");
 var devJWT = builder.Configuration["JWT:Key"];
 
 
