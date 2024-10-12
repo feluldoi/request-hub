@@ -267,7 +267,8 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8
-                .GetBytes(_configuration.GetSection("JWT:Key").Value));
+                .GetBytes(Environment.GetEnvironmentVariable("JWT")));
+                //.GetBytes(_configuration.GetSection("JWT:Key").Value));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 

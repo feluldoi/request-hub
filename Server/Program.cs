@@ -159,7 +159,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey =
-                    new SymmetricSecurityKey(Encoding.UTF8
+                    new SymmetricSecurityKey(Encoding.UTF8 
                         .GetBytes(prodJWT)),
                     ValidateIssuer = false,
                     ValidateAudience = false
