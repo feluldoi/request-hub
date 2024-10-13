@@ -63,7 +63,7 @@ else if (isProd)
 };
 
 //Determine connection string
-var prodConnectionStr = Environment.GetEnvironmentVariable("AZURE_CONNECTIONSTRING");
+var prodConnectionStr = builder.Configuration.GetConnectionString("AZURE_CONNECTIONSTRING");
 var devConnectionStr = builder.Configuration["AZURE_CONNECTIONSTRING"];
 
 
