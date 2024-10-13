@@ -64,7 +64,7 @@ else if (isProd)
 
 //Determine connection string
 var prodConnectionStr = Environment.GetEnvironmentVariable("AZURE_CONNECTIONSTRING");
-var devConnectionStr = builder.Configuration["ConnectionString:DefaultConnection"];
+var devConnectionStr = builder.Configuration["AZURE_CONNECTIONSTRING"];
 
 
 
@@ -119,7 +119,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 //Determine the JWT
 var prodJWT = Environment.GetEnvironmentVariable("JWT");
-var devJWT = builder.Configuration["JWT:Key"];
+var devJWT = builder.Configuration["JWT"];
 
 
 //Handle JWT
