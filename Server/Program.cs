@@ -62,8 +62,8 @@ else if (isProd)
 
 };
 
-//Determine connection string
-var prodConnectionStr = builder.Configuration.GetConnectionString("AZURE_CONNECTIONSTRING");
+
+//connection string
 var devConnectionStr = builder.Configuration["AZURE_CONNECTIONSTRING"];
 
 
@@ -92,25 +92,6 @@ builder.Services.AddDbContext<DataContext>(options =>
         }
 
     }
-    else if (isProd)
-    {
-        if (string.IsNullOrEmpty(prodConnectionStr))
-        {
-            throw new InvalidOperationException("Production Connection String Not Set");
-
-        }
-        else
-        {
-            options.UseSqlServer(prodConnectionStr, sqlServerOptionsAction: sqlOptions =>
-            {
-                //added for azure
-                sqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 5,
-                maxRetryDelay: TimeSpan.FromSeconds(30),
-                errorNumbersToAdd: null);
-            });
-        }
-    }
     
 
 });
@@ -118,7 +99,6 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 
 //Determine the JWT
-var prodJWT = Environment.GetEnvironmentVariable("JWT");
 var devJWT = builder.Configuration["JWT"];
 
 
@@ -146,30 +126,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 };
             }
         }
-        //if environment is Prod
-        else if (isProd)
-        {
-            if (string.IsNullOrEmpty(prodJWT))
-            {
-                throw new InvalidOperationException("Prod JWT Token is not set.");
-            }
-            else
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey =
-                    new SymmetricSecurityKey(Encoding.UTF8 
-                        .GetBytes(prodJWT)),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            }
-        }
-        else
-        {
-            throw new InvalidOperationException("Neither Prod nor Dev JWT set");
-        }
     });
 
 
@@ -177,8 +133,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 
 var app = builder.Build();
-app.UseSwagger();
-app.UseSwaggerUI();
+
 
 
 
@@ -186,7 +141,8 @@ app.UseSwaggerUI();
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
-
+    app.UseSwagger();
+    app.UseSwaggerUI();
 
 }
 else
@@ -195,16 +151,6 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
-//use swagger only for development
-//if (builder.Environment.IsDevelopment())
-//{
-//    app.UseSwaggerUI(options => // UseSwaggerUI is called only in Development.
-//    {
-//        options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-//        options.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
-//    });
-//}
 
 
 app.UseHttpsRedirection();
@@ -216,12 +162,6 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-
-//app.MapControllerRoute(
-//    name:"default",
-//    pattern: "{controller=Home}/{action=Index}/{id?}");
-
 
 
 app.MapRazorPages();
