@@ -65,7 +65,7 @@ else if (isProd)
 
 //connection string
 var devConnectionStr = builder.Configuration["AZURE_CONNECTIONSTRING"];
-
+var prodConnectionStr = builder.Configuration.GetConnectionString("AZURE_CONNECTIONSTRING");
 
 
 //Handle ConnectionString
@@ -92,7 +92,25 @@ builder.Services.AddDbContext<DataContext>(options =>
         }
 
     }
-    
+    else if (isProd)
+    {
+        if (string.IsNullOrEmpty(prodConnectionStr))
+        {
+            throw new InvalidOperationException("Production Connection String Not Set");
+        }
+        else
+        {
+            options.UseSqlServer(prodConnectionStr, sqlServerOptionsAction: sqlOptions =>
+            {
+                //added for azure
+                sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+            });
+        }
+    }
+
 
 });
 
@@ -100,6 +118,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 //Determine the JWT
 var devJWT = builder.Configuration["JWT"];
+var prodJWT = Environment.GetEnvironmentVariable("JWT");
 
 
 //Handle JWT
@@ -121,6 +140,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     IssuerSigningKey =
                     new SymmetricSecurityKey(Encoding.UTF8
                         .GetBytes(devJWT)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            }
+        }
+        else if (isProd)
+        {
+            if (string.IsNullOrEmpty(prodJWT))
+            {
+                throw new InvalidOperationException("Prod JWT Token is not set.");
+            }
+            else
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey =
+                    new SymmetricSecurityKey(Encoding.UTF8
+                        .GetBytes(prodJWT)),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
