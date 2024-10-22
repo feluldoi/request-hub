@@ -47,7 +47,7 @@ namespace RequestHub.Server.Data
 
                 }
             );
-
+            //
 
             modelBuilder.Entity<Department>().HasData(
                 new Department
