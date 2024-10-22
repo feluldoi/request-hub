@@ -1,0 +1,62 @@
+﻿@page "/file-upload"
+@inject IFileUploadServiceClient FileUploadService
+@inject ILogger<FileUpload> Logger
+
+<h1>File Upload</h1>
+
+<InputFile OnChange="LoadFiles" multiple />
+
+@if (isLoading)
+{
+    <p>Uploading...</p>
+}
+else
+{
+    <ul>
+        @foreach (var file in uploadedFiles)
+        {
+            <li>
+                <ul>
+                    <li>Name: @file.FileName</li>
+                    <li>Size: @file.Size bytes</li>
+                    <li>Uploaded: @file.UploadDate</li>
+                </ul>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    // a list of 'UploadFile objects 
+    private List<UploadFile> uploadedFiles = new();
+    private bool isLoading;
+
+    //Populate with all files retrieved from the database
+    protected override async Task OnInitializedAsync()
+    {
+        uploadedFiles = await FileUploadService.GetUploadedFilesAsync();
+    }
+
+
+    //handles the uploading of new files selected by the user
+    private async Task LoadFiles(InputFileChangeEventArgs e)//Input change event
+    {
+        isLoading = true;
+
+        foreach (var file in e.GetMultipleFiles())
+        {
+            try
+            {
+                var uploadedFile = await FileUploadService.UploadFileAsync(file);
+                uploadedFiles.Add(uploadedFile);
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("File: {Filename} Error: {Error}", file.Name, ex.Message);
+            }
+        }
+
+        isLoading = false;
+    }
+}

@@ -1,0 +1,142 @@
+﻿@page "/tickets"
+@inject ITicketServiceClient TicketService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+@using System.Security.Claims
+@using RequestHub.Shared
+@using Blazorise.DataGrid
+@using Blazorise
+@using Blazorise.Bootstrap
+
+
+
+<html>
+<head>
+	<PageTitle>Tickets</PageTitle>
+</head>
+
+<body>
+	<header>
+			<h1>Tickets</h1>
+	</header>
+	<main>
+		@if (isLoading)
+		{
+			<h2 class="loading">Loading Tickets...</h2>
+		}
+		else
+		{
+			<DataGrid TItem="Ticket" Data="@TicketService.Tickets" Sortable="true" Filterable="true" Editable="true" ShowPager="true" PageSize="10">
+
+
+				<DataGridCommandColumn TItem="Ticket">
+					<EditCommandTemplate>
+						@if (authorized)
+						{
+							<a href="/ticketmanagement/@context.Item.Id" class="btn btn-secondary">Edit</a>
+						}
+
+					</EditCommandTemplate>
+					<NewCommandTemplate>
+						<Blazorise.Button Color="Color.Success" Clicked="() => CreateNewTicket()">New</Blazorise.Button>
+					</NewCommandTemplate>
+					<DeleteCommandTemplate>
+						@*Keep this Empty*@
+					</DeleteCommandTemplate>
+					<ClearFilterCommandTemplate>
+						<Blazorise.Button Color="Color.Info" Clicked="context.Clicked">Clear Filter</Blazorise.Button>
+					</ClearFilterCommandTemplate>
+				</DataGridCommandColumn>
+
+				<DataGridColumn TItem="Ticket" Field="@nameof(Ticket.User.RequestorName)" Caption="Requestor Name" Editable="true" />
+				<DataGridColumn TItem="Ticket" Field="@nameof(Ticket.EquipmentName)" Caption="Equipment Name" Editable="true" />
+				<DataGridColumn TItem="Ticket" Field="@nameof(Ticket.Description)" Caption="Description" Editable="true" />
+				<DataGridColumn TItem="Ticket" Field="@nameof(Ticket.IsValid)" Caption="IsValid" Editable="true" />
+				<DataGridColumn TItem="Ticket" Field="@nameof(Ticket.Timestamp)" Caption="Request Date" Editable="true" />
+				<DataGridColumn TItem="Ticket" Field="@nameof(Ticket.Department.DepartmentName)" Caption="Department Name" Editable="true" />
+				<DataGridColumn TItem="Ticket" Field="@nameof(Ticket.SiteLocation.Name)" Caption="Site Location" Editable="true" />
+				<DataGridColumn TItem="Ticket" Field="@nameof(Ticket.Comment)" Caption="Controls/IT Comments" Editable="true" />
+				
+
+
+			</DataGrid>
+		}
+	</main>
+</body>
+</html>
+
+
+
+@code {
+
+
+
+	bool authorized = false;//Role Authentication
+
+	bool isLoading = true;
+
+
+	protected override async Task OnInitializedAsync()
+	{
+	
+
+		try
+		{
+			await TicketService.GetTickets();
+			await TicketService.GetDepartments();
+			await TicketService.GetSiteLocations();
+
+			//Role Authentication
+			var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+			if (authState?.User != null)
+			{
+				string role = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+				if (!string.IsNullOrEmpty(role) && role.Contains("Admin"))
+				{
+					authorized = true;
+				}
+			}
+
+			//check if tickets were loaded 
+			if (TicketService.Tickets == null || !TicketService.Tickets.Any())
+			{
+				throw new Exception("No tickets were loaded.");
+			}
+
+			//Data is loaded, set isLoading to false 
+			isLoading = false;
+		}
+		catch(Exception ex)
+		{
+			// Handle any exceptions here, and set isLoading to false in case of an error
+			isLoading = false;
+		}
+
+
+
+	}
+
+	void ShowTicket(int id)
+	{
+		NavigationManager.NavigateTo($"ticketmanagement/{id}");
+	}
+
+	void CreateNewTicket()
+	{
+		NavigationManager.NavigateTo("/ticketmanagement");
+	}
+
+	
+	
+
+	
+
+
+
+
+
+}
+
+
+
+

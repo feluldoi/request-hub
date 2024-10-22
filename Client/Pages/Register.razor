@@ -1,0 +1,80 @@
+﻿@page "/register"
+@inject IAuthServiceClient AuthService
+@inject IEmailServiceClient EmailService
+
+
+
+<PageTitle>Register</PageTitle>
+
+
+<h3>Register</h3>
+
+
+<EditForm Model="user" OnValidSubmit="HandleRegistration" >
+	<DataAnnotationsValidator/>
+	<div class="mb-3">
+		<label for="name">Requestor Name </label>
+		<InputText id="name" @bind-Value="user.RequestorName" class="form-control"></InputText>
+		<ValidationMessage For="@(() => user.RequestorName)" />
+	</div>
+	<div class="mb-3">
+		<label for="email">Email </label>
+		<InputText id="email" @bind-Value="user.Email" class="form-control" ></InputText>
+		<ValidationMessage For="@(() => user.Email)"/>
+	</div>
+	<div class="mb-3">
+		<label for="password">Password </label>
+		<InputText id="password" @bind-Value="user.Password" class="form-control" type="password"></InputText>
+		<ValidationMessage For="@(() => user.Password)" />
+	</div>
+	<div class="mb-3">
+		<label for="confirmpassword">ConfirmPassword </label>
+		<InputText id="confirmpassword" @bind-Value="user.ConfirmPassword" class="form-control" type="password" ></InputText>
+		<ValidationMessage For="@(() => user.ConfirmPassword)" />
+	</div>
+	<button type="submit" class="btn btn-primary">Register</button>
+	<div class="@regMessageCssClass">
+		<span>@regMessage</span>
+	</div>
+	<div class="@emailMessageCssClass">
+		<span>@emailMessage</span>
+	</div>
+	<!--<ValidationSummary/>-->
+</EditForm>
+
+
+
+
+
+@code {
+	UserRegister user = new UserRegister();
+
+	string regMessage = string.Empty;
+	string regMessageCssClass = string.Empty;
+
+	string emailMessage = string.Empty;
+	string emailMessageCssClass = string.Empty;
+
+
+
+	async Task HandleRegistration()
+	{
+		regMessage = "Registering User...";
+		var regResult = await AuthService.Register(user);
+		regMessage = regResult.Message;
+
+		if (regResult.Success)
+		{
+			regMessageCssClass = "text-success";
+			emailMessage = "Registration email sent! Please verify email.";
+			emailMessageCssClass = "text-success";
+		}
+		else{
+			regMessageCssClass = "text-danger";
+			emailMessage = "Failed to send verification email.";
+			emailMessageCssClass = "text-danger";
+		}
+	}
+
+
+}

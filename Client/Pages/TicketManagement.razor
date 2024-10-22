@@ -1,0 +1,232 @@
+﻿@page "/ticketmanagement"
+@page "/ticketmanagement/{id:int}"
+@inject ITicketServiceClient TicketService
+@inject IEmailServiceClient EmailService
+@inject IAuthServiceClient AuthService
+@inject ILogger<TicketManagement> Logger
+@inject IFileUploadServiceClient FileUploadService
+@inject NavigationManager navigationManager
+@attribute [Authorize]
+
+
+    
+
+
+@if (Id == null)
+{  
+    <h3>Create a new Ticket</h3>
+}
+else
+{
+    <h3>Edit: @ticket.Description</h3>
+}
+
+
+<EditForm Model="ticket" OnSubmit="HandleSubmit">
+    <Div>
+        <label for="equipmentName"><strong>Equipment Name</strong></label>
+        <InputText id="equipmentName" @bind-Value="ticket.EquipmentName" class="form-control"></InputText>
+    </Div>
+    <Div>
+        <label for="description"><strong>Description</strong></label>
+        <InputText id="description" @bind-Value="ticket.Description" class="form-control"></InputText>
+    </Div>
+    <Div>
+        <label for="IsValid"><strong>IsValid</strong></label>
+        <InputCheckbox id="IsValid" @bind-Value="ticket.IsValid" class="form-check" style="width:25px; height:30px;"></InputCheckbox>
+    </Div>
+    <Div>
+        <label><strong>Department</strong></label><br />
+        <InputSelect @bind-Value="ticket.DepartmentId" class="form-select">
+            @foreach (var department in departments)
+            {
+                <option value="@department.Id">@department.DepartmentName</option>
+            }
+        </InputSelect>
+    </Div>
+     <Div>
+        <label><strong>Site Location</strong></label><br />
+        <InputSelect @bind-Value="ticket.SiteLocationId" class="form-select">
+            @foreach (var sitelocation in siteLocations)
+            {
+                <option value="@sitelocation.Id">@sitelocation.Name</option>
+            }
+        </InputSelect>
+    </Div>
+    <Div>
+        <label for="comment"><strong>Comments</strong></label>
+        <InputText id="comment" @bind-Value="ticket.Comment" class="form-control"></InputText>
+
+    </Div>
+    <Div>
+        <button type="button" class="btn btn-secondary" style="margin-top: 10px" @onclick="SendEmail">
+            <Icon Name="IconName.Mail" />
+            Send
+        </button>
+        
+        <span class ="alert" style="color:rgb(55,240,20)">@sendStatus</span>
+    </Div>
+    <Div>
+        <InputFile OnChange="LoadFiles" style="margin-top: 10px" multiple />
+    </Div>
+    <br />
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger" @onclick="DeleteTicket">Delete Ticket</button>
+</EditForm>
+
+
+
+
+
+
+
+
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }//'?' can hold a null value
+
+    private string sendStatus = string.Empty;
+
+
+    //Update and Save Ticket button initialization
+    string btnText = string.Empty;
+
+
+    //initialize list to display on dropdown menus
+    private List<Department> departments = new List<Department>();
+    private List<SiteLocation> siteLocations = new List<SiteLocation>();
+    private List<User> users = new List<User>();
+
+    Ticket ticket = new Ticket
+        {
+            Department = new Department(),
+            User = new User(),
+            SiteLocation = new SiteLocation(),
+
+
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        //if Id == null-> "Save New Ticket" gets pushed into btnText. if not "update ticket" gets pushed 
+        btnText = Id == null ? "Save New Ticket" : "Update Ticket";// "?" conditional (ternery) operator
+
+        //push fetched departments into the departments list
+        departments =  await TicketService.GetDepartments();
+        siteLocations = await TicketService.GetSiteLocations();
+        await TicketService.GetTickets();
+        users = await TicketService.GetUsers();
+
+
+
+    }
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        //if there is no Id, default to '0'
+        if (Id == null)
+        {
+            ticket.Department = departments[0];
+            ticket.DepartmentId = ticket.Department.Id;
+            ticket.User = users[0];
+            ticket.UserId = ticket.User.Id;
+            ticket.SiteLocation = siteLocations[0];
+            ticket.SiteLocationId = ticket.SiteLocation.Id;
+
+
+        }
+        else
+        {
+            ticket = await TicketService.GetSingleTicket((int)Id);
+
+
+
+        }
+    }
+
+    async Task SendEmail()
+    {
+        //instance of Email Model
+        var emailDto = new EmailDto
+            {
+                To = ticket.User.Email,
+                Subject = "Ticket Number: " + ticket.Id + " For: " + ticket.EquipmentName,
+                Body = ticket.Comment
+            };
+
+
+        //call and handle send email method
+        sendStatus = "Sending Email...";
+        var response = await EmailService.SendEmail(emailDto);
+        if (response.Success)
+        {
+            sendStatus = "Sent!";
+        }
+        else
+        {
+            sendStatus = "Send Failed.";
+        }
+
+
+    }
+
+    async Task HandleSubmit()
+    {
+        //If there is no existing Id that is being edited, create one. Else, update ticket
+        if (Id == null)
+        { 
+            var result = await TicketService.CreateTicket(ticket);
+
+            //Redirect to a different page 
+            navigationManager.NavigateTo("/tickets");
+        }
+        else
+        {
+            await TicketService.UpdateTicket(ticket);
+            //Redirect to a different page
+            navigationManager.NavigateTo("/tickets");
+
+
+        }
+    }
+
+    async Task DeleteTicket()
+    {
+        await TicketService.DeleteTicket(ticket.Id);
+
+        //Redirect to a different page
+        navigationManager.NavigateTo("/tickets");
+    }
+
+
+
+    private bool isLoading = false;
+    private List<UploadFile> uploadedFiles = new();
+
+    //handles the uploading of new files selected by the user
+    private async Task LoadFiles(InputFileChangeEventArgs e)//Input change event
+    {
+        isLoading = true;
+
+        foreach (var file in e.GetMultipleFiles())
+        {
+            try
+            {
+                var uploadedFile = await FileUploadService.UploadFileAsync(file);
+                uploadedFiles.Add(uploadedFile);
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("File: {Filename} Error: {Error}", file.Name, ex.Message);
+            }
+        }
+
+        isLoading = false;
+    }
+
+
+
+}

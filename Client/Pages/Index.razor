@@ -1,0 +1,49 @@
+﻿@page "/"
+@inject NavigationManager navigationManager
+
+<html>
+<head>
+    <title>Ticketing System</title>
+</head>
+
+
+<body>
+    <header>
+        <div>
+            <h1>Request Hub</h1>
+        </div>
+    </header>
+    <main>
+        <section class="content">
+            <img class="ticket-image" src="../PaperAirPlane.jpg" alt="Ticket Icon">
+            <h2>Welcome to the Ticketing System</h2>
+            <p>Submit and track your requests with ease.</p>
+            <button @onclick="LoginBtn">Get Started</button>
+            <button @onclick="openFileUpload">Open File Upload Page</button>
+
+        </section>
+    </main>
+</body>
+</html>
+
+@code {
+    //Login Btn
+    void LoginBtn()
+    {
+        navigationManager.NavigateTo("/login");
+    }
+
+    void openFileUpload()
+    {
+        navigationManager.NavigateTo("/file-upload");
+
+    }
+
+
+}
+
+
+
+
+
+
