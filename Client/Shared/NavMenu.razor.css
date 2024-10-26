@@ -1,5 +1,12 @@
 .navbar-toggler {
     background-color: rgba(255, 255, 255, 0.1);
+    margin-left: auto;
+    
+    
+}
+
+.userbtn {
+    margin-left: 1rem;
 }
 
 .top-row {
@@ -58,5 +65,9 @@
     .collapse {
         /* Never collapse the sidebar for wide screens */
         display: block;
+    }
+    
+    .userbtn {
+        display: none;
     }
 }
