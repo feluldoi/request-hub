@@ -18,8 +18,10 @@ header h1 {
 
 .email {
     padding-bottom: 10px;
+    font-weight: bold;
 }
 
 .pass {
     padding-bottom: 10px;
+    font-weight: bold;
 }

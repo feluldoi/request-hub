@@ -19,12 +19,14 @@
 			<DataAnnotationsValidator />
 			<section>
 				<div class="email">
-					<label for="email">Email </label>
+					<label for="email">Email</label>
+					<h6 style="font-style: italic" class="d-inline">Use: "testuser@user.com" for testing</h6>
 					<InputText id="email" @bind-Value="user.Email" class="form-control"></InputText>
 					<ValidationMessage For="@(() => user.Email)" />
 				</div>
 				<div class="pass">
 					<label for="password">Password</label>
+					<h6 style="font-style: italic" class="d-inline">Use: "hashsalt" for testing</h6>
 					<InputText id="password" @bind-Value="user.Password" class="form-control" type="password"></InputText>
 					<ValidationMessage For="@(() => user.Password)" />
 				</div>
@@ -39,6 +41,9 @@
 		<div class="text-danger">
 			<span>@errorMessage</span>
 		</div>
+		<div class="text-info">
+			<span>@message</span>
+		</div>
 	</footer>
 </body>
 </html>
@@ -52,6 +57,7 @@
 	private UserLogin user = new UserLogin();//instance of a class and assigns it to user variable
 
 	private string errorMessage = string.Empty;
+	private string message = string.Empty;
 
 	private string returnUrl = string.Empty;
 
@@ -66,7 +72,11 @@
 
 	private async Task HandleLogin()
 	{
+		message = "Loading...";
+
 		var result = await AuthService.Login(user);
+
+
 		if (result.Success)
 		{
 			errorMessage = string.Empty;
