@@ -23,6 +23,12 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnC
 builder.Services.AddBlazorise();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddLogging(config =>
+{
+    config.AddConsole();
+    config.AddDebug();
+    // Add other logging providers as needed
+});
 
 builder.Services.AddScoped<IFileUploadServiceServer, FileUploadServiceServer>();
 builder.Services.AddScoped<IAuthServiceServer, AuthServiceServer>();

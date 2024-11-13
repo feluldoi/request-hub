@@ -20,8 +20,8 @@ namespace RequestHub.Shared
         public SiteLocation? SiteLocation { get; set; }
         public int SiteLocationId { get; set; }
         public string Comment { get; set; } = string.Empty;
-        public UploadFile? UploadFile { get; set; }
-        public int? UploadFileId { get; set; }
+        //public UploadFile? UploadFile { get; set; }
+        //public int? UploadFileId { get; set; }
 
         //Updated property getters below
         public string RequestorName => User?.RequestorName ?? "Error GETting RequestorName";

@@ -46,14 +46,14 @@ namespace RequestHub.Server.Controllers
         {
             try
             {
-                _logger.LogInformation("Get SingleTicket endpoint called");
+                _logger.LogInformation("GetSingleTicket endpoint called");
                 var singleTicket = await _ticketServiceServer.GetSingleTicketAsync(id);
                 _logger.LogInformation($"Retrieved {singleTicket.Id} ticket from service");
                 return Ok(singleTicket);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Get all tickets failed");
+                _logger.LogError(ex, "Get single ticket failed");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -113,6 +113,9 @@ namespace RequestHub.Server.Controllers
 
 
 
+
+
+
         [HttpPost]
         public async Task<ActionResult<Ticket>> CreateTicket(Ticket ticket)
         {
@@ -138,7 +141,7 @@ namespace RequestHub.Server.Controllers
 
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<List<Ticket>>> UpdateTicket(Ticket ticket, int id)
+        public async Task<ActionResult<List<Ticket>>> UpdateTicket(Ticket ticket, int id)  
         {
 
             try

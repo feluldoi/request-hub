@@ -18,13 +18,24 @@ namespace RequestHub.Server.Controllers
             _logger = logger;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<UploadFile>> Upload(IFormFile file)
+        [HttpPost("ticket/{ticketId}")]
+        public async Task<ActionResult<UploadFile>> CreateFileUpload(IFormFile file, int ticketId)
         {
+
             try
             {
-                var uploadedFile = await _fileUploadService.UploadFileAsync(file);
-                return Ok(uploadedFile);
+                if (ticketId != 0)
+                {
+                    _logger.LogInformation($"ticket Id: {ticketId}");
+                    var uploadedFile = await _fileUploadService.CreateUploadFileAsync(file, ticketId);
+                    return Ok(uploadedFile);
+                }
+                else
+                {
+                    _logger.LogError($"cannot retrieve ticket id");
+                    return StatusCode(500, "Internal server error");
+                }
+
             }
             catch (ArgumentException ex)
             {

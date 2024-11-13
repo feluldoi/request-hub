@@ -5,7 +5,7 @@ namespace RequestHub.Client.Services.FileUploadServiceClient
 {
     public interface IFileUploadServiceClient
     {
-        Task<UploadFile> UploadFileAsync(IBrowserFile file);
-        Task<List<UploadFile>> GetUploadedFilesAsync();
+        Task<UploadFile> CreateUploadFile(IBrowserFile file, int ticketId);
+        Task<List<UploadFile>> GetUploadedFiles();
     }
 }

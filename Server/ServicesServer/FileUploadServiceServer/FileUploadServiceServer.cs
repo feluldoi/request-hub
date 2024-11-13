@@ -18,7 +18,7 @@ namespace RequestHub.Server.ServicesServer.FileUploadServiceServer
             _context = context;
         }
 
-        public async Task<UploadFile> UploadFileAsync(IFormFile file)
+        public async Task<UploadFile> CreateUploadFileAsync(IFormFile file, int ticketId)
         {
             try
             {
@@ -28,11 +28,13 @@ namespace RequestHub.Server.ServicesServer.FileUploadServiceServer
                     var uploadPath = Path.Combine(_environment.ContentRootPath, "uploads");
                     var filePath = Path.Combine(uploadPath, trustedFileName);
 
+                    //create upload folder
                     if (!Directory.Exists(uploadPath))
                     {
                         Directory.CreateDirectory(uploadPath);
                     }
 
+                    //Create uploaded file
                     await using var stream = new FileStream(filePath, FileMode.Create);
                     await file.CopyToAsync(stream);
 
@@ -43,11 +45,15 @@ namespace RequestHub.Server.ServicesServer.FileUploadServiceServer
                         ContentType = file.ContentType,
                         Size = file.Length,
                         UploadDate = DateTime.UtcNow,
-                        FilePath = filePath
-                    };
+                        FilePath = filePath,
+                        TicketId = ticketId
 
-                    _context.UploadFiles.Add(uploadFile);
+                    };
+                    
+                    //Add uploaded file to database
+					_context.UploadFiles.Add(uploadFile);
                     await _context.SaveChangesAsync();
+
 
                     _logger.LogInformation("File saved: {Filename}", trustedFileName);
 
@@ -76,5 +82,7 @@ namespace RequestHub.Server.ServicesServer.FileUploadServiceServer
                 throw;
             }
         }
+
+
     }
 }

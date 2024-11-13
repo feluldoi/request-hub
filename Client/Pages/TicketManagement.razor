@@ -69,6 +69,25 @@ else
     <Div>
         <InputFile OnChange="LoadFiles" style="margin-top: 10px" multiple />
     </Div>
+    @if (isLoading)
+    {
+        <p>Uploading...</p>
+    }
+    else
+    {
+        <ul>
+            @foreach (var file in uploadedFiles)
+            {
+                <li>
+                    <ul>
+                        <li>Name: @file.FileName</li>
+                        <li>Size: @file.Size bytes</li>
+                        <li>Uploaded: @file.UploadDate</li>
+                    </ul>
+                </li>
+            }
+        </ul>
+    }
     <br />
     <button type="submit" class="btn btn-primary">@btnText</button>
     <button type="button" class="btn btn-danger" @onclick="DeleteTicket">Delete Ticket</button>
@@ -107,6 +126,11 @@ else
 
         };
 
+    //initialize load file fields
+    private bool isLoading = false;
+    private List<UploadFile> uploadedFiles = new();
+
+
     protected override async Task OnInitializedAsync()
     {
         //if Id == null-> "Save New Ticket" gets pushed into btnText. if not "update ticket" gets pushed 
@@ -117,6 +141,9 @@ else
         siteLocations = await TicketService.GetSiteLocations();
         await TicketService.GetTickets();
         users = await TicketService.GetUsers();
+
+        //Populate with all files retrieved from the database
+        uploadedFiles = await FileUploadService.GetUploadedFiles();
 
 
 
@@ -185,6 +212,7 @@ else
         else
         {
             await TicketService.UpdateTicket(ticket);
+
             //Redirect to a different page
             navigationManager.NavigateTo("/tickets");
 
@@ -202,8 +230,7 @@ else
 
 
 
-    private bool isLoading = false;
-    private List<UploadFile> uploadedFiles = new();
+
 
     //handles the uploading of new files selected by the user
     private async Task LoadFiles(InputFileChangeEventArgs e)//Input change event
@@ -214,7 +241,7 @@ else
         {
             try
             {
-                var uploadedFile = await FileUploadService.UploadFileAsync(file);
+                var uploadedFile = await FileUploadService.CreateUploadFile(file, ticket.Id);
                 uploadedFiles.Add(uploadedFile);
 
             }
@@ -225,6 +252,7 @@ else
         }
 
         isLoading = false;
+
     }
 
 

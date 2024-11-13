@@ -16,17 +16,23 @@ namespace RequestHub.Client.Services.FileUploadServiceClient
             _logger = logger;
         }
 
-        public async Task<UploadFile> UploadFileAsync(IBrowserFile file)
+
+        public async Task<UploadFile> CreateUploadFile(IBrowserFile file, int ticketId)
         {
             try
             {
                 var content = new MultipartFormDataContent();
                 var fileContent = new StreamContent(file.OpenReadStream());
+                //file content
                 fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
                 content.Add(fileContent, "file", file.Name);
+                //ticket id content
+                var idContent = new StringContent(ticketId.ToString());
+                content.Add(idContent, "id");
 
-                var response = await _http.PostAsync("api/FileUpload", content);
+                var response = await _http.PostAsync($"api/FileUpload/ticket/{ticketId}", content);//associate fileupload with ticket
                 response.EnsureSuccessStatusCode();
+                _logger.LogInformation("FILE UPLOADED SUCCESSFULLY -----");
 
                 return await response.Content.ReadFromJsonAsync<UploadFile>();
             }
@@ -37,7 +43,8 @@ namespace RequestHub.Client.Services.FileUploadServiceClient
             }
         }
 
-        public async Task<List<UploadFile>> GetUploadedFilesAsync()
+
+        public async Task<List<UploadFile>> GetUploadedFiles()
         {
             try
             {

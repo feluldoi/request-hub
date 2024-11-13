@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
+using RequestHub.Client.Pages;
 using RequestHub.Shared;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace RequestHub.Client.Services.TicketServiceClient
@@ -129,5 +132,7 @@ namespace RequestHub.Client.Services.TicketServiceClient
             Tickets = response;
             _navigationManager.NavigateTo("tickets");
         }
+
+
     }
 }

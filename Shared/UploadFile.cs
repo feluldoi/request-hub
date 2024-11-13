@@ -9,6 +9,8 @@ namespace RequestHub.Shared
     public class UploadFile
     {
         public int Id { get; set; }
+        public Ticket? Ticket { get; set; }//allows full ticket object from the UploadFile instance
+        public int? TicketId { get; set; }
         public string FileName { get; set; }
         public string TrustedFileName { get; set; }
         public string ContentType { get; set; }

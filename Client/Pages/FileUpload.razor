@@ -4,7 +4,7 @@
 
 <h1>File Upload</h1>
 
-<InputFile OnChange="LoadFiles" multiple />
+@*  <InputFile OnChange="LoadFiles" multiple /> *@
 
 @if (isLoading)
 {
@@ -34,29 +34,29 @@ else
     //Populate with all files retrieved from the database
     protected override async Task OnInitializedAsync()
     {
-        uploadedFiles = await FileUploadService.GetUploadedFilesAsync();
+        uploadedFiles = await FileUploadService.GetUploadedFiles();
     }
 
 
     //handles the uploading of new files selected by the user
-    private async Task LoadFiles(InputFileChangeEventArgs e)//Input change event
-    {
-        isLoading = true;
+    // private async Task LoadFiles(InputFileChangeEventArgs e)//Input change event
+    // {
+    //     isLoading = true;
 
-        foreach (var file in e.GetMultipleFiles())
-        {
-            try
-            {
-                var uploadedFile = await FileUploadService.UploadFileAsync(file);
-                uploadedFiles.Add(uploadedFile);
+    //     foreach (var file in e.GetMultipleFiles())
+    //     {
+    //         try
+    //         {
+    //             var uploadedFile = await FileUploadService.UploadFileAsync(file);
+    //             uploadedFiles.Add(uploadedFile);
 
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("File: {Filename} Error: {Error}", file.Name, ex.Message);
-            }
-        }
+    //         }
+    //         catch (Exception ex)
+    //         {
+    //             Logger.LogError("File: {Filename} Error: {Error}", file.Name, ex.Message);
+    //         }
+    //     }
 
-        isLoading = false;
-    }
+    //     isLoading = false;
+    // }
 }

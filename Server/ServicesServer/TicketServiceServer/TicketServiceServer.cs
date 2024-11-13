@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RequestHub.Server.Data;
 using RequestHub.Shared;
+using System.ComponentModel;
 
 namespace RequestHub.Server.ServicesServer.TicketServiceServer
 {
@@ -71,6 +72,12 @@ namespace RequestHub.Server.ServicesServer.TicketServiceServer
             return users;
         }
 
+
+
+
+
+
+
         public async Task<Ticket> CreateTicketAsync(Ticket ticket, int userId)
         {
 
@@ -78,7 +85,7 @@ namespace RequestHub.Server.ServicesServer.TicketServiceServer
             ticket.Department = null;
             ticket.User = null;
             ticket.SiteLocation = null;
-            ticket.UploadFile = null;
+            //ticket.UploadFile = null;
 
             _context.Tickets.Add(ticket);
             await _context.SaveChangesAsync();
@@ -88,13 +95,16 @@ namespace RequestHub.Server.ServicesServer.TicketServiceServer
 
         }
 
+
+  
         public async Task<Ticket> UpdateTicketAsync(Ticket ticket, int id)
         {
+            
             var updatedTicket = await _context.Tickets
                 .Include(sh => sh.Department)
                 .Include(sh => sh.User)
                 .Include(sh => sh.SiteLocation)
-                 //.Include(sh => sh.UploadFile)
+                //.Include(sh => sh.UploadFile)
                  .FirstOrDefaultAsync(sh => sh.Id == id);
 
             //add all columns that can be updated here
@@ -122,7 +132,7 @@ namespace RequestHub.Server.ServicesServer.TicketServiceServer
                 .Include(sh => sh.Department)
                 .Include(sh => sh.User)
                 .Include(sh => sh.SiteLocation)
-                 //.Include(sh => sh.UploadFile)
+                //.Include(sh => sh.UploadFile)
                  .FirstOrDefaultAsync(sh => sh.Id == id);
 
             _context.Tickets.Remove(dbTicket);

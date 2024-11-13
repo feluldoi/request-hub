@@ -4,7 +4,7 @@ namespace RequestHub.Server.ServicesServer.FileUploadServiceServer
 {
     public interface IFileUploadServiceServer
     {
-        Task<UploadFile> UploadFileAsync(IFormFile file);
+        Task<UploadFile> CreateUploadFileAsync(IFormFile file, int ticketId);
         Task<List<UploadFile>> GetUploadedFilesAsync();
     }
 }
