@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Exchange.WebServices.Data;
 using RequestHub.Server.Data;
 using RequestHub.Shared;
 
@@ -69,20 +70,25 @@ namespace RequestHub.Server.ServicesServer.FileUploadServiceServer
             }
         }
 
-
-        public async Task<List<UploadFile>> GetUploadedFilesAsync()
+        public async Task<List<UploadFile>> GetTicketUploadFilesAsync(int ticketId)
         {
+
             try
             {
-                return await _context.UploadFiles.ToListAsync();
+                var ticketUploadFiles = await _context.UploadFiles
+                    .Where(item => item.TicketId == ticketId)
+                    .ToListAsync();
+                 
+
+                return ticketUploadFiles;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting uploaded files");
+                _logger.LogError(ex, "Server Serivice: Error getting ticket upload files");
                 throw;
             }
-        }
 
+        }
 
     }
 }

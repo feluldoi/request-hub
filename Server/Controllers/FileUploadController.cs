@@ -48,19 +48,33 @@ namespace RequestHub.Server.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<UploadFile>>> GetUploadedFiles()
+        [HttpGet("ticket/{ticketId}")]
+        public async Task<ActionResult<List<UploadFile>>> GetTicketUploadFiles(int ticketId)
         {
             try
             {
-                var files = await _fileUploadService.GetUploadedFilesAsync();
-                return Ok(files);
+                if (ticketId == 0)
+                {
+                    _logger.LogWarning("Invalid ticketId: 0");//developer feedback
+                    return BadRequest("Invalid ticketId");//client feedback 
+                }
+
+                var ticketUploadFiles = await _fileUploadService.GetTicketUploadFilesAsync(ticketId);
+                return Ok(ticketUploadFiles);//returns OK200 with ticket upload files
+
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogError(ex, "Invalid argument provided");
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting uploaded files");
+                _logger.LogError(ex, "Error getting upload files associated with ticketId: {TicketId}", ticketId);
                 return StatusCode(500, "Internal server error");
             }
+
         }
+
     }
 }

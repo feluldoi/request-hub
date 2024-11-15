@@ -43,18 +43,28 @@ namespace RequestHub.Client.Services.FileUploadServiceClient
             }
         }
 
-
-        public async Task<List<UploadFile>> GetUploadedFiles()
+        public async Task<List<UploadFile>> GetTicketFileUploads(int ticketId)
         {
+            _logger.LogInformation($"here is the ticketId: {ticketId}");
             try
             {
-                return await _http.GetFromJsonAsync<List<UploadFile>>("api/FileUpload");
+                if (ticketId != 0)
+                {
+                    var response = await _http.GetFromJsonAsync<List<UploadFile>>($"api/FileUpload/ticket/{ticketId}");//associate file upload with ticket
+                    return response;
+                }
+                else
+                {
+                    throw new Exception("ticketId is equal to 0...");
+                }
+                
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting uploaded files");
+                _logger.LogError(ex, "Client: Error getting all upload files associated to a ticket");
                 throw;
             }
         }
+
     }
 }

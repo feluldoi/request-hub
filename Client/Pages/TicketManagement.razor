@@ -142,10 +142,6 @@ else
         await TicketService.GetTickets();
         users = await TicketService.GetUsers();
 
-        //Populate with all files retrieved from the database
-        uploadedFiles = await FileUploadService.GetUploadedFiles();
-
-
 
     }
 
@@ -168,6 +164,7 @@ else
         {
             ticket = await TicketService.GetSingleTicket((int)Id);
 
+            uploadedFiles = await FileUploadService.GetTicketFileUploads((int)Id);
 
 
         }

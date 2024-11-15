@@ -19,7 +19,6 @@
             <h2>Welcome to the Ticketing System</h2>
             <p>Submit and track your requests with ease.</p>
             <button @onclick="LoginBtn">Get Started</button>
-            <button @onclick="openFileUpload">File Upload</button>
         </section>
     </main>
 </body>
@@ -30,12 +29,6 @@
     void LoginBtn()
     {
         navigationManager.NavigateTo("/login");
-    }
-
-    void openFileUpload()
-    {
-        navigationManager.NavigateTo("/file-upload");
-
     }
 
 
