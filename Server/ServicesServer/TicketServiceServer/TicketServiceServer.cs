@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using RequestHub.Server.Data;
 using RequestHub.Shared;
 using System.ComponentModel;
@@ -128,6 +129,7 @@ namespace RequestHub.Server.ServicesServer.TicketServiceServer
 
         public async Task<bool> DeleteTicketAsync(int id)
         {
+            //Remove ticket 
             var dbTicket = await _context.Tickets
                 .Include(sh => sh.Department)
                 .Include(sh => sh.User)
@@ -135,6 +137,11 @@ namespace RequestHub.Server.ServicesServer.TicketServiceServer
                 //.Include(sh => sh.UploadFile)
                  .FirstOrDefaultAsync(sh => sh.Id == id);
 
+            //Remove associated uploadfiles
+            var uploadFiles = await _context.UploadFiles
+                .Where(item => item.TicketId == id).ToListAsync();
+
+            _context.UploadFiles.RemoveRange(uploadFiles);
             _context.Tickets.Remove(dbTicket);
 
             await _context.SaveChangesAsync();

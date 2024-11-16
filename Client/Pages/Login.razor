@@ -63,6 +63,7 @@
 
 	protected override void OnInitialized()
 	{
+		//redirects to previous page after login
 		var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
 		if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var url))
 		{
@@ -72,7 +73,7 @@
 
 	private async Task HandleLogin()
 	{
-		message = "Loading...";
+		message = "Loading...Waking up Azure db. 'Cold start' phenomenon with the free tier";
 
 		var result = await AuthService.Login(user);
 
