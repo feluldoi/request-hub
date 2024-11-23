@@ -30,6 +30,8 @@ namespace RequestHub.Client.Services.FileUploadServiceClient
                 var idContent = new StringContent(ticketId.ToString());
                 content.Add(idContent, "id");
 
+                _logger.LogInformation($"this is the ticket ID: {ticketId}");
+
                 var response = await _http.PostAsync($"api/FileUpload/ticket/{ticketId}", content);//associate fileupload with ticket
                 response.EnsureSuccessStatusCode();
                 _logger.LogInformation("FILE UPLOADED SUCCESSFULLY -----");

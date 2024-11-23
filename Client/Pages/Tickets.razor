@@ -2,6 +2,7 @@
 @inject ITicketServiceClient TicketService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
+@inject ILogger<Tickets> Logger
 @using System.Security.Claims
 @using RequestHub.Shared
 @using Blazorise.DataGrid
@@ -78,7 +79,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-	
+
 
 		try
 		{
@@ -121,9 +122,31 @@
 		NavigationManager.NavigateTo($"ticketmanagement/{id}");
 	}
 
-	void CreateNewTicket()
+	async Task CreateNewTicket()
 	{
-		NavigationManager.NavigateTo("/ticketmanagement");
+		int nextTicketId;
+
+		try
+		{
+			//fetch the next available ticket id
+			var tickets = await TicketService.GetTickets();
+			Logger.LogInformation($"Ticket.razor: ticket count: {tickets.Count}");
+			if (tickets.Any())
+			{
+				nextTicketId = tickets.Max(t => t.Id) + 1;
+
+				NavigationManager.NavigateTo($"/ticketmanagement/create/{nextTicketId}");
+			}
+			// else
+			// {
+			// 	NavigationManager.NavigateTo($"/ticketmanagement/create/{nextTicketId}");
+			// }
+		}
+		catch (Exception ex)
+		{
+			throw new Exception($"No tickets are available to fetch: {ex}");
+		}
+
 	}
 
 	

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace RequestHub.Server.Migrations
 {
-    public partial class initial : Migration
+    public partial class dataSeeding : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -33,24 +33,6 @@ namespace RequestHub.Server.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SiteLocations", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UploadFiles",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TrustedFileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ContentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Size = table.Column<long>(type: "bigint", nullable: false),
-                    UploadDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FilePath = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UploadFiles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -88,8 +70,7 @@ namespace RequestHub.Server.Migrations
                     EquipmentName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     SiteLocationId = table.Column<int>(type: "int", nullable: false),
-                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UploadFileId = table.Column<int>(type: "int", nullable: true)
+                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -107,16 +88,35 @@ namespace RequestHub.Server.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Tickets_UploadFiles_UploadFileId",
-                        column: x => x.UploadFileId,
-                        principalTable: "UploadFiles",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_Tickets_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UploadFiles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TicketId = table.Column<int>(type: "int", nullable: true),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TrustedFileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ContentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Size = table.Column<long>(type: "bigint", nullable: false),
+                    UploadDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FilePath = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UploadFiles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UploadFiles_Tickets_TicketId",
+                        column: x => x.TicketId,
+                        principalTable: "Tickets",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.InsertData(
@@ -142,12 +142,12 @@ namespace RequestHub.Server.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "DateCreated", "Email", "PasswordHash", "PasswordResetToken", "PasswordSalt", "RequestorName", "ResetTokenExpires", "Role", "VerificationToken", "VerifiedAt" },
-                values: new object[] { 1, new DateTime(2024, 10, 1, 16, 17, 30, 375, DateTimeKind.Local).AddTicks(1716), "testuser@user.com", new byte[] { 236, 193, 30, 173, 113, 173, 73, 152, 178, 214, 2, 10, 79, 4, 194, 62, 83, 22, 157, 228, 240, 238, 117, 221, 140, 2, 205, 245, 125, 252, 137, 134, 243, 101, 3, 189, 201, 187, 228, 254, 181, 192, 20, 90, 244, 193, 68, 69, 97, 203, 170, 239, 211, 221, 5, 35, 82, 15, 89, 151, 231, 206, 173, 147 }, null, new byte[] { 71, 139, 167, 5, 180, 57, 49, 154, 183, 47, 195, 69, 156, 113, 199, 24, 246, 159, 21, 149, 163, 7, 58, 93, 211, 45, 113, 18, 86, 58, 166, 102, 149, 104, 1, 69, 86, 75, 173, 182, 12, 134, 196, 198, 176, 177, 21, 6, 81, 114, 22, 75, 186, 83, 235, 126, 15, 125, 89, 9, 60, 208, 76, 47, 71, 166, 81, 190, 169, 152, 40, 220, 76, 4, 112, 87, 6, 19, 102, 191, 218, 189, 176, 70, 76, 160, 63, 253, 238, 180, 192, 251, 15, 46, 90, 11, 150, 193, 246, 198, 158, 145, 59, 59, 152, 221, 143, 148, 74, 68, 2, 31, 91, 123, 192, 86, 197, 157, 53, 227, 17, 104, 216, 141, 32, 220, 236, 219 }, "Test User", null, "Admin", null, null });
+                values: new object[] { 1, new DateTime(2024, 11, 23, 12, 4, 50, 472, DateTimeKind.Local).AddTicks(4723), "testuser@user.com", new byte[] { 117, 249, 81, 48, 244, 31, 74, 71, 104, 122, 66, 175, 60, 156, 2, 191, 91, 72, 43, 19, 221, 12, 140, 49, 78, 56, 65, 1, 70, 212, 30, 58, 233, 155, 214, 222, 83, 95, 66, 188, 202, 23, 140, 210, 237, 198, 133, 118, 195, 127, 158, 182, 46, 60, 254, 153, 208, 90, 223, 161, 226, 25, 98, 139 }, null, new byte[] { 48, 69, 163, 203, 163, 198, 137, 237, 110, 25, 16, 165, 165, 128, 130, 14, 56, 56, 224, 124, 199, 214, 217, 192, 142, 214, 40, 244, 238, 31, 202, 3, 3, 133, 42, 52, 58, 1, 255, 204, 104, 2, 115, 148, 108, 218, 49, 139, 81, 34, 3, 235, 241, 103, 243, 23, 25, 167, 186, 2, 250, 127, 78, 0, 192, 191, 7, 216, 133, 9, 156, 195, 254, 198, 111, 209, 146, 241, 228, 101, 68, 26, 108, 141, 1, 192, 200, 250, 220, 26, 87, 81, 248, 106, 13, 55, 98, 103, 202, 98, 195, 182, 152, 58, 89, 184, 106, 204, 20, 237, 61, 202, 19, 78, 104, 17, 210, 70, 209, 15, 156, 88, 28, 196, 254, 193, 210, 237 }, "Test User", null, "Admin", null, null });
 
             migrationBuilder.InsertData(
                 table: "Tickets",
-                columns: new[] { "Id", "Comment", "DepartmentId", "Description", "EquipmentName", "IsValid", "SiteLocationId", "Timestamp", "UploadFileId", "UserId" },
-                values: new object[] { 1, "enter comment here...", 1, "Enter description here", "enter equipment name here", true, 1, new DateTime(2024, 10, 1, 16, 17, 30, 375, DateTimeKind.Local).AddTicks(513), null, 1 });
+                columns: new[] { "Id", "Comment", "DepartmentId", "Description", "EquipmentName", "IsValid", "SiteLocationId", "Timestamp", "UserId" },
+                values: new object[] { 1, "enter comment here...", 1, "Enter description here", "enter equipment name here", true, 1, new DateTime(2024, 11, 23, 12, 4, 50, 472, DateTimeKind.Local).AddTicks(3982), 1 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tickets_DepartmentId",
@@ -160,18 +160,21 @@ namespace RequestHub.Server.Migrations
                 column: "SiteLocationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tickets_UploadFileId",
-                table: "Tickets",
-                column: "UploadFileId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Tickets_UserId",
                 table: "Tickets",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UploadFiles_TicketId",
+                table: "UploadFiles",
+                column: "TicketId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "UploadFiles");
+
             migrationBuilder.DropTable(
                 name: "Tickets");
 
@@ -180,9 +183,6 @@ namespace RequestHub.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "SiteLocations");
-
-            migrationBuilder.DropTable(
-                name: "UploadFiles");
 
             migrationBuilder.DropTable(
                 name: "Users");

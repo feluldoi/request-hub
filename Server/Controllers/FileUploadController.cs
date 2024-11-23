@@ -29,14 +29,14 @@ namespace RequestHub.Server.Controllers
                     _logger.LogInformation($"ticket Id: {ticketId}");
                     var uploadedFile = await _fileUploadService.CreateUploadFileAsync(file, ticketId);
                     return Ok(uploadedFile);
-                }
-                else
-                {
-                    _logger.LogError($"cannot retrieve ticket id");
-                    return StatusCode(500, "Internal server error");
-                }
-
             }
+                else
+            {
+                _logger.LogError($"cannot retrieve ticket id");
+                return StatusCode(500, "Internal server error");
+            }
+
+        }
             catch (ArgumentException ex)
             {
                 return BadRequest(ex.Message);

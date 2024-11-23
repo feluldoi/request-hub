@@ -78,7 +78,7 @@ namespace RequestHub.Server.ServicesServer.TicketServiceServer
 
 
 
-
+        //Creating an empty ticket with only an association to the user that created it
         public async Task<Ticket> CreateTicketAsync(Ticket ticket, int userId)
         {
 
@@ -134,7 +134,6 @@ namespace RequestHub.Server.ServicesServer.TicketServiceServer
                 .Include(sh => sh.Department)
                 .Include(sh => sh.User)
                 .Include(sh => sh.SiteLocation)
-                //.Include(sh => sh.UploadFile)
                  .FirstOrDefaultAsync(sh => sh.Id == id);
 
             //Remove associated uploadfiles

@@ -1,5 +1,6 @@
 ﻿@page "/ticketmanagement"
 @page "/ticketmanagement/{id:int}"
+@page "/ticketmanagement/create/{nextTicketId:int}"
 @inject ITicketServiceClient TicketService
 @inject IEmailServiceClient EmailService
 @inject IAuthServiceClient AuthService
@@ -12,7 +13,7 @@
     
 
 
-@if (Id == null)
+@if (id == null)
 {  
     <h3>Create a new Ticket</h3>
 }
@@ -103,7 +104,9 @@ else
 
 @code {
     [Parameter]
-    public int? Id { get; set; }//'?' can hold a null value
+    public int? id { get; set; }
+    [Parameter]
+    public int? nextTicketId { get; set; }
 
     private string sendStatus = string.Empty;
 
@@ -119,6 +122,7 @@ else
 
     Ticket ticket = new Ticket
         {
+            //The rest of the fields are bound in the handle submit form and is why they do not show up here.
             Department = new Department(),
             User = new User(),
             SiteLocation = new SiteLocation(),
@@ -134,7 +138,8 @@ else
     protected override async Task OnInitializedAsync()
     {
         //if Id == null-> "Save New Ticket" gets pushed into btnText. if not "update ticket" gets pushed 
-        btnText = Id == null ? "Save New Ticket" : "Update Ticket";// "?" conditional (ternery) operator
+        btnText = id == null ? "Save New Ticket" : "Update Ticket";// "?" conditional (ternery) operator
+  
 
         //push fetched departments into the departments list
         departments =  await TicketService.GetDepartments();
@@ -149,8 +154,9 @@ else
     protected override async Task OnParametersSetAsync()
     {
         //if there is no Id, default to '0'
-        if (Id == null)
+        if (id == null)
         {
+            //initialize the ticket with the first department, user , and site location in the list
             ticket.Department = departments[0];
             ticket.DepartmentId = ticket.Department.Id;
             ticket.User = users[0];
@@ -162,9 +168,9 @@ else
         }
         else
         {
-            ticket = await TicketService.GetSingleTicket((int)Id);
+            ticket = await TicketService.GetSingleTicket((int)id);
 
-            uploadedFiles = await FileUploadService.GetTicketFileUploads((int)Id);
+            uploadedFiles = await FileUploadService.GetTicketFileUploads((int)id);
 
 
         }
@@ -199,18 +205,16 @@ else
     async Task HandleSubmit()
     {
         //If there is no existing Id that is being edited, create one. Else, update ticket
-        if (Id == null)
+        if (id == null)
         { 
             var result = await TicketService.CreateTicket(ticket);
 
-            //Redirect to a different page 
             navigationManager.NavigateTo("/tickets");
         }
         else
         {
             await TicketService.UpdateTicket(ticket);
 
-            //Redirect to a different page
             navigationManager.NavigateTo("/tickets");
 
 
@@ -238,8 +242,19 @@ else
         {
             try
             {
-                var uploadedFile = await FileUploadService.CreateUploadFile(file, ticket.Id);
-                uploadedFiles.Add(uploadedFile);
+                if(id != 0)
+                {
+                    var uploadedFile = await FileUploadService.CreateUploadFile(file, ticket.Id);
+                    uploadedFiles.Add(uploadedFile);
+                }
+                else
+                {
+                    Logger.LogInformation("it detected that the ticket id was 0");
+                }
+
+
+
+
 
             }
             catch (Exception ex)

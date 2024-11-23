@@ -20,8 +20,11 @@ namespace RequestHub.Shared
         public SiteLocation? SiteLocation { get; set; }
         public int SiteLocationId { get; set; }
         public string Comment { get; set; } = string.Empty;
-        //public UploadFile? UploadFile { get; set; }
-        //public int? UploadFileId { get; set; }
+
+        //access all files assocaited with a ticket | new = List... just avoids null references
+        public virtual ICollection<UploadFile> UploadFiles { get; set; } = new List<UploadFile>();
+
+
 
         //Updated property getters below
         public string RequestorName => User?.RequestorName ?? "Error GETting RequestorName";
