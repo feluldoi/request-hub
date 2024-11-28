@@ -147,5 +147,26 @@ namespace RequestHub.Server.ServicesServer.TicketServiceServer
 
             return true;
         }
-    }
+
+		//public async Task<Ticket> SaveTicketAsync(Ticket ticket, int ticketId)
+		//{
+  //          var saveTicket = await _context.Tickets
+  //              .Include(sh => sh.Department)
+  //              .Include(sh => sh.User)
+  //              .Include(sh => sh.SiteLocation)
+  //              .FirstOrDefaultAsync(sh => sh.Id == ticketId);
+
+  //          saveTicket.Description = ticket.Description;
+  //          saveTicket.IsValid = ticket.IsValid;
+  //          saveTicket.DepartmentId = ticket.DepartmentId;
+  //          saveTicket.UserId = ticket.UserId;
+  //          saveTicket.EquipmentName = ticket.EquipmentName;
+  //          saveTicket.SiteLocationId = ticket.SiteLocationId;
+  //          saveTicket.Comment = ticket.Comment;
+
+  //          await _context.SaveChangesAsync();
+
+		//	return ticket;
+		//}
+	}
 }

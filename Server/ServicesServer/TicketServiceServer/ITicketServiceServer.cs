@@ -10,7 +10,8 @@ namespace RequestHub.Server.ServicesServer.TicketServiceServer
         Task<List<SiteLocation>> GetSiteLocationsAsync();
         Task<List<User>> GetUsersAsync();
         Task<Ticket> CreateTicketAsync(Ticket ticket, int userId);
-        Task<Ticket> UpdateTicketAsync(Ticket ticket, int id);
+		//Task<Ticket> SaveTicketAsync(Ticket ticket, int ticketId);
+		Task<Ticket> UpdateTicketAsync(Ticket ticket, int id);
         Task<bool> DeleteTicketAsync(int id);
 
     }

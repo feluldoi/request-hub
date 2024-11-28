@@ -95,7 +95,7 @@ namespace RequestHub.Client.Services.TicketServiceClient
         //<----P0ST--->
         public async Task<Ticket> CreateTicket(Ticket ticket)
         {
-            //_logger.LogInformation("CreateTicket: client side calling API");
+            _logger.LogInformation("CreateTicket: client side calling API");
             var response = await _http.PostAsJsonAsync("api/ticket", ticket);
             var createdTicket = await response.Content.ReadFromJsonAsync<Ticket>();
             //await SetTickets(response);
@@ -133,6 +133,13 @@ namespace RequestHub.Client.Services.TicketServiceClient
             _navigationManager.NavigateTo("tickets");
         }
 
-
-    }
+		//public async Task<Ticket> SaveTicket(Ticket ticket)
+		//{
+		//	//_logger.LogInformation("CreateTicket: client side calling API");
+		//	var response = await _http.PutAsJsonAsync($"api/ticket/save/{ticket.Id}", ticket);
+  //          var updatedTicket = await response.Content.ReadFromJsonAsync<Ticket>();
+  //          //await SetTickets(response);
+  //          return updatedTicket;
+		//}
+	}
 }

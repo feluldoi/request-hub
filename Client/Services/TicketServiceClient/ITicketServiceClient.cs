@@ -14,7 +14,8 @@ namespace RequestHub.Client.Services.TicketServiceClient
         Task<List<SiteLocation>> GetSiteLocations();
         Task<List<User>> GetUsers();
         Task<Ticket> CreateTicket(Ticket ticket);
-        Task<Ticket> UpdateTicket(Ticket ticket);
+        //Task<Ticket> SaveTicket(Ticket ticket);
+		Task<Ticket> UpdateTicket(Ticket ticket);
         Task<bool> DeleteTicket(int id);
     }
 }

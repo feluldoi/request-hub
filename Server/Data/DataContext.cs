@@ -121,7 +121,8 @@ namespace RequestHub.Server.Data
                     PasswordSalt = passwordSalt1,
                     DateCreated = DateTime.Now,
                     Role = "Admin",
-                    RequestorName = "Test User"
+                    RequestorName = "Test User",
+                    VerifiedAt = DateTime.Now,
                 }
             );
 

@@ -138,9 +138,29 @@ namespace RequestHub.Server.Controllers
         }
 
 
+        //[HttpPut("save/{id}")]
+        //public async Task<ActionResult<List<Ticket>>> SaveTicket(Ticket ticket, int ticketId)
+        //{
 
 
-        [HttpPut("{id}")]
+        //    try
+        //    {
+        //        _logger.LogInformation("Controller: Saving Ticket...");
+
+        //        var saveTicket = await _ticketServiceServer.SaveTicketAsync(ticket, ticketId);
+        //        return StatusCode(201, saveTicket);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error occurred while saving a ticket");
+        //        return StatusCode(500, "An unexpected error occurred while saving the ticket");
+        //    }
+
+        //}
+
+
+		[HttpPut("{id}")]
         public async Task<ActionResult<List<Ticket>>> UpdateTicket(Ticket ticket, int id)  
         {
 

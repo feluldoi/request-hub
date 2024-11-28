@@ -34,7 +34,7 @@
 					<EditCommandTemplate>
 						@if (authorized)
 						{
-							<a href="/ticketmanagement/@context.Item.Id" class="btn btn-secondary">Edit</a>
+							<Blazorise.Button Color="Color.Secondary" Type="ButtonType.Link" To="@($"ticketmanagement/{context.Item.Id}")">Edit</Blazorise.Button>
 						}
 
 					</EditCommandTemplate>
@@ -71,6 +71,22 @@
 @code {
 
 
+	//initialize list to display on dropdown menus
+	private List<Department> departments = new List<Department>();
+	private List<SiteLocation> siteLocations = new List<SiteLocation>();
+	private List<User> users = new List<User>();
+
+
+	Ticket ticket = new Ticket
+		{
+			//The rest of the fields are bound in the handle submit form and is why they do not show up here.
+			Department = new Department(),
+			User = new User(),
+			SiteLocation = new SiteLocation(),
+
+
+		};
+
 
 	bool authorized = false;//Role Authentication
 
@@ -83,9 +99,11 @@
 
 		try
 		{
+			//to ceate a ticket we need to load associated data
 			await TicketService.GetTickets();
-			await TicketService.GetDepartments();
-			await TicketService.GetSiteLocations();
+			departments = await TicketService.GetDepartments();
+			siteLocations = await TicketService.GetSiteLocations();
+			users = await TicketService.GetUsers();
 
 			//Role Authentication
 			var authState = await AuthStateProvider.GetAuthenticationStateAsync();
@@ -117,35 +135,54 @@
 
 	}
 
-	void ShowTicket(int id)
+
+	protected override async Task OnParametersSetAsync()
+    {
+		//initialize the ticket with the first department, user , and site location in the list
+		ticket.Department = departments[0];
+		ticket.DepartmentId = ticket.Department.Id;
+		ticket.User = users[0];
+		ticket.UserId = ticket.User.Id;
+		ticket.SiteLocation = siteLocations[0];
+		ticket.SiteLocationId = ticket.SiteLocation.Id;
+    }
+
+
+
+	async Task EditTicket(int updateTicketId)
 	{
-		NavigationManager.NavigateTo($"ticketmanagement/{id}");
+		NavigationManager.NavigateTo($"ticketmanagement/{updateTicketId}");
 	}
 
 	async Task CreateNewTicket()
 	{
-		int nextTicketId;
 
-		try
-		{
-			//fetch the next available ticket id
-			var tickets = await TicketService.GetTickets();
-			Logger.LogInformation($"Ticket.razor: ticket count: {tickets.Count}");
-			if (tickets.Any())
-			{
-				nextTicketId = tickets.Max(t => t.Id) + 1;
 
-				NavigationManager.NavigateTo($"/ticketmanagement/create/{nextTicketId}");
-			}
-			// else
-			// {
-			// 	NavigationManager.NavigateTo($"/ticketmanagement/create/{nextTicketId}");
-			// }
-		}
-		catch (Exception ex)
-		{
-			throw new Exception($"No tickets are available to fetch: {ex}");
-		}
+		var newTicket = await TicketService.CreateTicket(ticket);
+
+		NavigationManager.NavigateTo($"/ticketmanagement/create/{newTicket.Id}");
+
+
+		// try
+		// {
+		// 	//fetch the next available ticket id
+		// 	var tickets = await TicketService.GetTickets();
+		// 	Logger.LogInformation($"Ticket.razor: ticket count: {tickets.Count}");
+		// 	if (tickets.Any())
+		// 	{
+		// 		nextTicketId = tickets.Max(t => t.Id) + 1;
+
+		// 		NavigationManager.NavigateTo($"/ticketmanagement/create/{nextTicketId}");
+		// 	}
+		// 	// else
+		// 	// {
+		// 	// 	NavigationManager.NavigateTo($"/ticketmanagement/create/{nextTicketId}");
+		// 	// }
+		// }
+		// catch (Exception ex)
+		// {
+		// 	throw new Exception($"No tickets are available to fetch: {ex}");
+		// }
 
 	}
 

@@ -53,7 +53,7 @@ namespace RequestHub.Server.ServicesServer.FileUploadServiceServer
                     
                     //Add uploaded file to database
 					_context.UploadFiles.Add(uploadFile);
-                    await _context.SaveChangesAsync();
+                    //await _context.SaveChangesAsync();
 
 
                     _logger.LogInformation("File saved: {Filename}", trustedFileName);
