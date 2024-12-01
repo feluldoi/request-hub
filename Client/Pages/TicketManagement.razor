@@ -112,14 +112,6 @@ else
     Ticket ticket = new Ticket();
 
 
-    // private Ticket ticket;
-
-    // protected override async Task OnParametersSetAsync()
-    // {
-    //     ticket = await TicketService.GetTicketById(newTicketId);
-    // }
-
-
     private string sendStatus = string.Empty;
 
 
@@ -127,26 +119,10 @@ else
     string btnText = string.Empty;
 
 
-
-
-
     //initialize list to display on dropdown menus
     private List<Department> departments = new List<Department>();
     private List<SiteLocation> siteLocations = new List<SiteLocation>();
     private List<User> users = new List<User>();
-
-    // Ticket ticket = new Ticket
-    //     {
-    //         //The rest of the fields are bound in the handle submit form and is why they do not show up here.
-    //         Department = new Department(),
-    //         User = new User(),
-    //         SiteLocation = new SiteLocation(),
-
-
-    //     };
-
-
-
 
 
     //initialize load file fields
@@ -165,13 +141,14 @@ else
         siteLocations = await TicketService.GetSiteLocations();
         await TicketService.GetTickets();
         users = await TicketService.GetUsers();
+    }
 
 
+    protected override async Task OnParametersSetAsync()
+    {
+        //determine if creating a ticket or updating
         var currentUri = navigationManager.Uri;
-        Logger.LogInformation($"current uri in oninitializedAsync meth: {currentUri}");
         var creatingNewTicket = currentUri.Contains("create");
-        Logger.LogInformation($"is creating new ticket in oninitializedAsync meth?: {creatingNewTicket}");
-
 
         if (!creatingNewTicket)
         {
@@ -182,47 +159,6 @@ else
         {
             ticket = await TicketService.GetSingleTicket(newTicketId.Value);
         }
-        else
-        {
-            ticket = new Ticket
-                {
-                    Department = new Department(),
-                    User = new User(),
-                    SiteLocation = new SiteLocation(),
-                };
-        }
-
-    }
-
-
-    protected override async Task OnParametersSetAsync()
-    {
-
-        //ticket = await TicketService.GetSingleTicket((int)newTicketId);
-
-
-
-
-
-        // //if there is no Id, default to '0'
-        // if (id == null)
-        // {
-        //     //initialize the ticket with the first department, user , and site location in the list
-        //     ticket.Department = departments[0];
-        //     ticket.DepartmentId = ticket.Department.Id;
-        //     ticket.User = users[0];
-        //     ticket.UserId = ticket.User.Id;
-        //     ticket.SiteLocation = siteLocations[0];
-        //     ticket.SiteLocationId = ticket.SiteLocation.Id;
-
-        // }
-        // else
-        // {
-        //     ticket = await TicketService.GetSingleTicket((int)id);
-
-        //     uploadedFiles = await FileUploadService.GetTicketFileUploads((int)id);
-
-        // }
     }
 
     async Task SendEmail()
@@ -254,12 +190,11 @@ else
     async Task HandleSubmit()
     {
 
-
         await TicketService.UpdateTicket(ticket);
 
         navigationManager.NavigateTo("/tickets");
-
     }
+
 
     async Task DeleteTicket()
     {
