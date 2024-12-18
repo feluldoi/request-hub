@@ -6,10 +6,12 @@ namespace RequestHub.Client.Services.AuthServiceClient
     public class AuthServiceClient : IAuthServiceClient
     {
         private readonly HttpClient _http;
+        private readonly ILogger<AuthServiceClient> _logger;
 
-        public AuthServiceClient(HttpClient http)
+        public AuthServiceClient(HttpClient http, ILogger<AuthServiceClient> logger)
         {
             _http = http;
+            _logger = logger;
         }
 
 
@@ -51,12 +53,12 @@ namespace RequestHub.Client.Services.AuthServiceClient
             return await result.Content.ReadFromJsonAsync<ServiceResponse<string>>();
         }
 
-        public async Task<ServiceResponse<int>> Register(UserRegister request)
+        public async Task<ServiceResponse<string>> Register(UserRegister request)
         {
+            _logger.LogInformation("TODO: in authServiceClient register api request");
+            
             var result = await _http.PostAsJsonAsync("api/auth/register", request);
-            return await result.Content.ReadFromJsonAsync<ServiceResponse<int>>();
+            return await result.Content.ReadFromJsonAsync<ServiceResponse<string>>();
         }
-
-
     }
 }

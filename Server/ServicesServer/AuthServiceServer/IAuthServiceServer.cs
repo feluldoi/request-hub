@@ -4,7 +4,7 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
 {
     public interface IAuthServiceServer
     {
-        Task<ServiceResponse<int>> Register(User user, string password);
+        Task<ServiceResponse<string>> Register(User user, string password);
         Task<bool> UserExists(string email);
         Task<ServiceResponse<string>> Login(string email, string password);
         Task<ServiceResponse<string>> VerifyEmail(string token);

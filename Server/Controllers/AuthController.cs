@@ -9,34 +9,77 @@ namespace RequestHub.Server.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthServiceServer _authService;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IAuthServiceServer authService)
+        public AuthController(IAuthServiceServer authService, ILogger<AuthController> logger)
         {
             _authService = authService;
+            _logger = logger;
         }
 
+
+
+        //[HttpPost("register")]
+        //public async Task<ActionResult<ServiceResponse<string>>> Register(UserRegister request)
+        //{
+        //    _logger.LogInformation("in register authcontroller endpoint");
+
+        //    var response = await _authService.Register(
+        //        new User
+        //        {
+        //            Email = request.Email,
+        //            //post to the db
+        //            RequestorName = request.RequestorName,
+
+        //        },
+        //         request.Password);
+
+        //    if (!response.Success)
+        //    {
+        //        return Redirect("/verify-email/" + response.Message);
+        //    }
+
+        //    return BadRequest(response);
+
+        //}
+
+
+
+
+
         [HttpPost("register")]
-        public async Task<ActionResult<ServiceResponse<int>>> Register(UserRegister request)
+        public async Task<ActionResult<ServiceResponse<string>>> Register(UserRegister request)
         {
+            //TODO: this doesn't seem to show up on the developer console
+            _logger.LogInformation("in register authcontroller endpoint");
 
             var response = await _authService.Register(
                 new User
                 {
                     Email = request.Email,
-                    //post to the db
                     RequestorName = request.RequestorName,
-
                 },
-                 request.Password);
+                request.Password);
 
             if (!response.Success)
             {
-                return Redirect("/verify-email/" + response.Message);
+                return BadRequest(response);
+                
+                // had to remove this in order for the page to display there was duplicate emails in the db
+                //return Redirect("/verify-email/" + response.Message);
+            }
+            else
+            {
+                return Ok(response);
+                //return Redirect("/verify-email/" + response.Message);
             }
 
-            return BadRequest(response);
 
+            
         }
+
+
+
 
 
 

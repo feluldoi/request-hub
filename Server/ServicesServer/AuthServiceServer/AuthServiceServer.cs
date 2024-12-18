@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Azure.Communication.Email;
+using Azure;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RequestHub.Server.Data;
@@ -16,18 +18,20 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
         private readonly DataContext _context;
         private readonly IConfiguration _configuration;
         private readonly IEmailServiceServer _emailService;
+        private readonly ILogger<AuthServiceServer> _logger;
 
-        public AuthServiceServer(DataContext context, IConfiguration configuration, IEmailServiceServer emailService)
+        public AuthServiceServer(DataContext context, IConfiguration configuration, IEmailServiceServer emailService, ILogger<AuthServiceServer> logger)
         {
             _context = context;
             _configuration = configuration;
             _emailService = emailService;
+            _logger = logger;
         }
-
 
 
         public async Task<ServiceResponse<string>> Login(string email, string password)//JSON Web Tokens
         {
+
             try
             {
                 var response = new ServiceResponse<string>();
@@ -96,36 +100,49 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
 
 
         //Used with SendVerificationEmail method
-        public async Task<ServiceResponse<int>> Register(User user, string password)
+        public async Task<ServiceResponse<string>> Register(User user, string password)
         {
-            if (await UserExists(user.Email))
+            _logger.LogInformation("in Register method on AuthServiceServer.cs");
+            
+            var response = new ServiceResponse<string>();
+
+            try
             {
-                //response for UserExists
-                return new ServiceResponse<int>
+                if (await UserExists(user.Email))
                 {
-                    Success = false,
-                    Message = "User Already Exists."
-                };
+                    response.Success = false;
+                    response.Message = "User alreaddy exists.";
+                }
+
+                CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
+
+                user.PasswordHash = passwordHash;
+                user.PasswordSalt = passwordSalt;
+                //added PasswordReset
+                user.VerificationToken = CreateRandomToken();
+
+                //store user object in db
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("user added");
+
+                var sendResult = await SendVerificationEmail(user);
+                if (sendResult.Success == false)
+                {
+
+                    response.Success = false;
+                    response.Message = "Email Failed to send ";
+
+                }
+                return response;
             }
-
-            CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
-
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
-            //added PasswordReset
-            user.VerificationToken = CreateRandomToken();
-
-            //store user object in db
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            await SendVerificationEmail(user);
-
-            //response for SendVerificationEmail
-            return new ServiceResponse<int>
+            catch (Exception ex)
             {
-                Success = true,
-            };
+                throw new Exception("Error Registering user", ex);
+                
+            }
+            
         }
 
 
@@ -133,22 +150,75 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
         public async Task<ServiceResponse<string>> SendVerificationEmail(User user)
         {
 
-            var verificationLink = $"https://localhost:7035/verify-email/{user.VerificationToken}";
+            //USING MAILKIT 
+            //var htmlLink = new MarkupString($"<a href=\"{verificationLink}\" target=\"_blank\">Click her to verify your account</a>");
 
-            var htmlLink = new MarkupString($"<a href=\"{verificationLink}\" target=\"_blank\">Click her to verify your account</a>");
+            //var emailDto = new EmailDto
+            //{
+            //    To = user.Email,
+            //    Subject = "Account Verification",
+            //    Body = $"Click the following link to verify your account: {htmlLink}"
 
-            var emailDto = new EmailDto
+            //};
+
+            //await _emailService.SendEmail(emailDto);
+
+            //return new ServiceResponse<string> { Message = "Verification email sent successfully." };
+
+
+
+            //var verificationLink = $"https://localhost:7035/verify-email/{user.VerificationToken}";//IIS 
+            //var verificationLink = $"https://localhost:7252/verify-email/{user.VerificationToken}";//Development
+            
+            //Azure Production
+            var verificationLink = $"https://requesthub.azurewebsites.net/verify-email/{user.VerificationToken}";
+
+            //retrieve email connectionString 
+            var emailConnectionString = _configuration["EMAIL_CONNECTIONSTRING"];   
+
+            //instantiate email client
+            var emailClient = new EmailClient(emailConnectionString);
+            // Create an email message. no need for dto since its built into the package
+            var emailMessage = new EmailMessage(
+                senderAddress: "DoNotReply@5a6f902e-689d-4ba3-9374-2e25083ee4da.azurecomm.net",
+                content: new EmailContent("Verify Email")
+                {
+                    PlainText = "Hello world via email.",
+                    Html = @$"
+		                    <html>
+		                    	<body>
+		                    		<h1>Hello world via email.</h1>
+                                    <a href=""{verificationLink}"" target =""_blank"" >Click here to verify your account</a>
+		                    	</body>
+		                    </html>"
+                },
+                recipients: new EmailRecipients(new List<EmailAddress> { new EmailAddress(user.Email) }));
+
+            //send message
+            EmailSendOperation emailSendOperation = emailClient.Send(
+                WaitUntil.Completed,
+                emailMessage);
+            var emailResult = emailSendOperation.GetRawResponse();
+            var response = new ServiceResponse<string>();
+            if(!emailResult.IsError)
             {
-                To = user.Email,
-                Subject = "Account Verification",
-                Body = $"Click the following link to verify your account: {htmlLink}"
+                response.Message = "Verification email sent successfully.";
+            }
+            else
+            {
+                response.Success = false;
+                response.Message = "Failed to send verification email.";
+            }
 
-            };
+            return response;
 
-            await _emailService.SendEmail(emailDto);
 
-            return new ServiceResponse<string> { Message = "Verification email sent successfully." };
+
+
         }
+
+
+
 
 
         public async Task<ServiceResponse<string>> VerifyEmail(string token)

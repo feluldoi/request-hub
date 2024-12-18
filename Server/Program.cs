@@ -10,6 +10,8 @@ using RequestHub.Server.ServicesServer.EmailServiceServer;
 using RequestHub.Server.ServicesServer.FileUploadServiceServer;
 using RequestHub.Server.ServicesServer.TicketServiceServer;
 using System.Text;
+using Azure;
+using Azure.Communication.Email;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,6 +74,30 @@ else if (isProd)
 //connection string
 var devConnectionStr = builder.Configuration["AZURE_CONNECTIONSTRING"];
 var prodConnectionStr = builder.Configuration.GetConnectionString("AZURE_CONNECTIONSTRING");
+var devEmailConnectionString = builder.Configuration["EMAIL_CONNECTIONSTRING"];//azure email communication service
+
+////azure.communication.email package
+//var emailClient = new EmailClient(devEmailConnectionString);
+//// Create an email message
+//var emailMessage = new EmailMessage(
+//    senderAddress: "DoNotReply@5a6f902e-689d-4ba3-9374-2e25083ee4da.azurecomm.net",
+//    content: new EmailContent("Test Email")
+//    {
+//        PlainText = "Hello world via email.",
+//        Html = @"
+//		<html>
+//			<body>
+//				<h1>Hello world via email.</h1>
+//			</body>
+//		</html>"
+//    },
+//    recipients: new EmailRecipients(new List<EmailAddress> { new EmailAddress("adisilag808@gmail.com") }));
+
+////send message
+//EmailSendOperation emailSendOperation = emailClient.Send(
+//    WaitUntil.Completed,
+//    emailMessage);
+
 
 
 //Handle ConnectionString

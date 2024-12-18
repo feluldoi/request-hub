@@ -4,7 +4,7 @@ namespace RequestHub.Client.Services.AuthServiceClient
 {
     public interface IAuthServiceClient
     {
-        Task<ServiceResponse<int>> Register(UserRegister request);
+        Task<ServiceResponse<string>> Register(UserRegister request);
         Task<ServiceResponse<string>> Login(UserLogin request);
         //new one 
         Task<ServiceResponse<bool>> ResetPassword(ResetPasswordRequest request);
