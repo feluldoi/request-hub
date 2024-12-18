@@ -71,10 +71,13 @@ else if (isProd)
 };
 
 
-//connection string
+//azuredb
 var devConnectionStr = builder.Configuration["AZURE_CONNECTIONSTRING"];
 var prodConnectionStr = builder.Configuration.GetConnectionString("AZURE_CONNECTIONSTRING");
-var devEmailConnectionString = builder.Configuration["EMAIL_CONNECTIONSTRING"];//azure email communication service
+
+//azure email communication service
+var devEmailConnectionString = builder.Configuration["EMAIL_CONNECTIONSTRING"];
+var prodEmailConnectionString = builder.Configuration.GetConnectionString("EMAIL_CONNECTIONSTRING");
 
 ////azure.communication.email package
 //var emailClient = new EmailClient(devEmailConnectionString);

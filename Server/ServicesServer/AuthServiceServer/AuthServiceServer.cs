@@ -166,15 +166,17 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
             //return new ServiceResponse<string> { Message = "Verification email sent successfully." };
 
 
-
+            //dev urls
             //var verificationLink = $"https://localhost:7035/verify-email/{user.VerificationToken}";//IIS 
             //var verificationLink = $"https://localhost:7252/verify-email/{user.VerificationToken}";//Development
             
-            //Azure Production
+            //Azure Production url
             var verificationLink = $"https://requesthub.azurewebsites.net/verify-email/{user.VerificationToken}";
 
-            //retrieve email connectionString 
-            var emailConnectionString = _configuration["EMAIL_CONNECTIONSTRING"];   
+            //devEmailConnectionString
+            //var emailConnectionString = _configuration["EMAIL_CONNECTIONSTRING"];
+            //prodEmailConnectionString
+            var emailConnectionString = _configuration.GetConnectionString("EMAIL_CONNECTIONSTRING");
 
             //instantiate email client
             var emailClient = new EmailClient(emailConnectionString);
