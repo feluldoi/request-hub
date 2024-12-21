@@ -9,6 +9,7 @@ using RequestHub.Shared;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Runtime.CompilerServices;
 
 namespace RequestHub.Server.ServicesServer.AuthServiceServer
 {
@@ -19,13 +20,15 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
         private readonly IConfiguration _configuration;
         private readonly IEmailServiceServer _emailService;
         private readonly ILogger<AuthServiceServer> _logger;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public AuthServiceServer(DataContext context, IConfiguration configuration, IEmailServiceServer emailService, ILogger<AuthServiceServer> logger)
+        public AuthServiceServer(DataContext context, IConfiguration configuration, IEmailServiceServer emailService, ILogger<AuthServiceServer> logger, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _configuration = configuration;
             _emailService = emailService;
             _logger = logger;
+            _webHostEnvironment = webHostEnvironment;
         }
 
 
@@ -168,15 +171,25 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
 
             //dev urls
             //var verificationLink = $"https://localhost:7035/verify-email/{user.VerificationToken}";//IIS 
-            //var verificationLink = $"https://localhost:7252/verify-email/{user.VerificationToken}";//Development
-            
-            //Azure Production url
-            var verificationLink = $"https://requesthub.azurewebsites.net/verify-email/{user.VerificationToken}";
 
-            //devEmailConnectionString
-            //var emailConnectionString = _configuration["EMAIL_CONNECTIONSTRING"];
-            //prodEmailConnectionString
-            var emailConnectionString = _configuration.GetConnectionString("EMAIL_CONNECTIONSTRING");
+
+
+            //Send Email From Azure Email Communication Service
+            string verificationLink;
+            var isDev = _webHostEnvironment.IsDevelopment();
+            if(isDev == false)
+            {
+                verificationLink = $"https://requesthub.azurewebsites.net/verify-email/{user.VerificationToken}";
+            }
+            else
+            {
+                verificationLink = $"https://localhost:7252/verify-email/{user.VerificationToken}";
+            }
+            
+
+            
+
+            var emailConnectionString = _configuration["EMAIL_CONNECTIONSTRING"];
 
             //instantiate email client
             var emailClient = new EmailClient(emailConnectionString);
