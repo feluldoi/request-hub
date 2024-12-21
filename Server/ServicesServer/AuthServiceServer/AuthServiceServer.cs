@@ -101,12 +101,13 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
         }
 
 
+        #region Registration
 
         //Used with SendVerificationEmail method
         public async Task<ServiceResponse<string>> Register(User user, string password)
         {
             _logger.LogInformation("in Register method on AuthServiceServer.cs");
-            
+
             var response = new ServiceResponse<string>();
 
             try
@@ -143,16 +144,18 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
             catch (Exception ex)
             {
                 throw new Exception("Error Registering user", ex);
-                
+
             }
-            
+
         }
+
 
 
         //Used with Register method
         public async Task<ServiceResponse<string>> SendVerificationEmail(User user)
         {
 
+            #region MainKit Implementation
             //USING MAILKIT 
             //var htmlLink = new MarkupString($"<a href=\"{verificationLink}\" target=\"_blank\">Click her to verify your account</a>");
 
@@ -171,13 +174,12 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
 
             //dev urls
             //var verificationLink = $"https://localhost:7035/verify-email/{user.VerificationToken}";//IIS 
-
-
+            #endregion
 
             //Send Email From Azure Email Communication Service
             string verificationLink;
             var isDev = _webHostEnvironment.IsDevelopment();
-            if(isDev == false)
+            if (isDev == false)
             {
                 verificationLink = $"https://requesthub.azurewebsites.net/verify-email/{user.VerificationToken}";
             }
@@ -185,9 +187,9 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
             {
                 verificationLink = $"https://localhost:7252/verify-email/{user.VerificationToken}";
             }
-            
 
-            
+
+
 
             var emailConnectionString = _configuration["EMAIL_CONNECTIONSTRING"];
 
@@ -198,7 +200,7 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
                 senderAddress: "DoNotReply@5a6f902e-689d-4ba3-9374-2e25083ee4da.azurecomm.net",
                 content: new EmailContent("Verify Email")
                 {
-                    PlainText = "Hello world via email.",
+                    PlainText = "Hello from RequestHub Website",
                     Html = @$"
 		                    <html>
 		                    	<body>
@@ -215,7 +217,7 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
                 emailMessage);
             var emailResult = emailSendOperation.GetRawResponse();
             var response = new ServiceResponse<string>();
-            if(!emailResult.IsError)
+            if (!emailResult.IsError)
             {
                 response.Message = "Verification email sent successfully.";
             }
@@ -226,13 +228,23 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
             }
 
             return response;
-
-
-
-
         }
 
 
+
+        #endregion
+
+
+
+        public async Task<bool> UserExists(string email)
+        {
+            if (await _context.Users.AnyAsync(user => user.Email.ToLower()
+            .Equals(email.ToLower())))
+            {
+                return true;
+            }
+            return false;
+        }
 
 
 
@@ -262,6 +274,7 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
 
 
 
+        #region Forgot/Reset Password
         //used with SendForgotPasswordEmail method
         public async Task<ServiceResponse<string>> ForgotPassword(string email)
         {
@@ -287,25 +300,119 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
             return response;
         }
 
+
+
         //Used with ForgotPassword method
         public async Task<ServiceResponse<string>> SendForgotPasswordEmail(User user)
         {
 
-            var forgotPasswordLink = $"https://localhost:7035/verify-reset-pass-tok/{user.PasswordResetToken}";
+            #region Using MailKit
+            //var forgotPasswordLink = $"https://localhost:7035/verify-reset-pass-tok/{user.PasswordResetToken}";
 
-            var htmlLink = new MarkupString($"<a href=\"{forgotPasswordLink}\" target=\"_blank\">Click her to reset your password</a>");
+            //var htmlLink = new MarkupString($"<a href=\"{forgotPasswordLink}\" target=\"_blank\">Click her to reset your password</a>");
 
-            var emailDto = new EmailDto
+            //var emailDto = new EmailDto
+            //{
+            //    To = user.Email,
+            //    Subject = "Password Recovery",
+            //    Body = $"Click the following link to reset your password: {htmlLink}"
+
+            //};
+
+            //await _emailService.SendEmail(emailDto);
+
+            //return new ServiceResponse<string> { Message = "Forgot password email sent successfully." };
+            #endregion
+
+            //Send Email From Azure Email Communication Service
+            string verificationLink;
+            var isDev = _webHostEnvironment.IsDevelopment();
+            if (isDev == false)
             {
-                To = user.Email,
-                Subject = "Password Recovery",
-                Body = $"Click the following link to reset your password: {htmlLink}"
+                verificationLink = $"https://requesthub.azurewebsites.net/verify-reset-pass-tok/{user.PasswordResetToken}";
+            }
+            else
+            {
+                verificationLink = $"https://localhost:7252/verify-reset-pass-tok/{user.PasswordResetToken}";
+            }
 
-            };
 
-            await _emailService.SendEmail(emailDto);
 
-            return new ServiceResponse<string> { Message = "Forgot password email sent successfully." };
+
+            var emailConnectionString = _configuration["EMAIL_CONNECTIONSTRING"];
+
+            //instantiate email client
+            var emailClient = new EmailClient(emailConnectionString);
+            // Create an email message. no need for dto since its built into the package
+            var emailMessage = new EmailMessage(
+                senderAddress: "DoNotReply@5a6f902e-689d-4ba3-9374-2e25083ee4da.azurecomm.net",
+                content: new EmailContent("Forgot Password")
+                {
+                    PlainText = "Hello from RequestHub Website",
+                    Html = @$"
+		                    <html>
+		                    	<body>
+		                    		<h1>Hello world via email.</h1>
+                                    <a href=""{verificationLink}"" target =""_blank"" >Click here to reset your password</a>
+		                    	</body>
+		                    </html>"
+                },
+                recipients: new EmailRecipients(new List<EmailAddress> { new EmailAddress(user.Email) }));
+
+            //send message
+            EmailSendOperation emailSendOperation = emailClient.Send(
+                WaitUntil.Completed,
+                emailMessage);
+            var emailResult = emailSendOperation.GetRawResponse();
+            var response = new ServiceResponse<string>();
+            if (!emailResult.IsError)
+            {
+                response.Message = "Forgot password email sent successfully.";
+            }
+            else
+            {
+                response.Success = false;
+                response.Message = "Failed to send forgot password email.";
+            }
+
+            return response;
+
+
+
+
+        }
+
+
+
+
+        public async Task<ServiceResponse<bool>> ResetPassword(ResetPasswordRequest request)
+        {
+            var response = new ServiceResponse<bool>();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.PasswordResetToken == request.Token);
+            if (user == null || user.ResetTokenExpires < DateTime.Now)
+            {
+                response.Success = false;
+                response.Message = "Invalid Token Or User does not exist";
+            }
+
+            else
+            {
+                CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+
+                user.PasswordHash = passwordHash;
+                user.PasswordSalt = passwordSalt;
+                user.PasswordResetToken = null;
+                user.ResetTokenExpires = null;
+
+
+                await _context.SaveChangesAsync();
+
+                //response.Message = "Password successfully reset.";
+            }
+
+
+
+            return response;
         }
 
 
@@ -331,17 +438,18 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
 
 
 
+        #endregion
 
 
-        public async Task<bool> UserExists(string email)
-        {
-            if (await _context.Users.AnyAsync(user => user.Email.ToLower()
-            .Equals(email.ToLower())))
-            {
-                return true;
-            }
-            return false;
-        }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -381,35 +489,7 @@ namespace RequestHub.Server.ServicesServer.AuthServiceServer
 
 
 
-        public async Task<ServiceResponse<bool>> ResetPassword(ResetPasswordRequest request)
-        {
-            var response = new ServiceResponse<bool>();
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.PasswordResetToken == request.Token);
-            if (user == null || user.ResetTokenExpires < DateTime.Now)
-            {
-                response.Success = false;
-                response.Message = "Invalid Token Or User does not exist";
-            }
-
-            else
-            {
-                CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
-
-                user.PasswordHash = passwordHash;
-                user.PasswordSalt = passwordSalt;
-                user.PasswordResetToken = null;
-                user.ResetTokenExpires = null;
-
-
-                await _context.SaveChangesAsync();
-
-                //response.Message = "Password successfully reset.";
-            }
-
-
-
-            return response;
-        }
+        
 
 
 
